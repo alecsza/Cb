@@ -48,7 +48,7 @@ namespace PrototipConfidanceBuilder.Models
         public DateTime DataStart { get; set; }
         public DateTime DataStop { get; set; }
 
-        public List<Tuple<int,DateTime>> ListaIdSiDataRutina { get; set; }
+        public List<Tuple<int,string>> ListaIdSiDataRutina { get; set; }
         public List<ActiunePeZile> Status7Z { get; set; }
        public ViewModelIndex(int IdUtil, DateTime StartDate, DateTime StopDate, DatabaseContext db)
         {
@@ -59,7 +59,7 @@ namespace PrototipConfidanceBuilder.Models
 
 
 
-            ListaIdSiDataRutina = new List<Tuple<int, DateTime>>();
+            ListaIdSiDataRutina = new List<Tuple<int, string>>();
             List<Tuple<ParcursRutina, RutinaActiune>> RutineEligibile = new List<Tuple<ParcursRutina, RutinaActiune>>();
             Status7Z = new List<ActiunePeZile>();
 
@@ -76,7 +76,8 @@ namespace PrototipConfidanceBuilder.Models
                     RutineEligibile.AddRange(listaActiuni);
                     
                 }
-                ListaIdSiDataRutina.Add(new Tuple<int, DateTime>(pr==null?0:pr.IdRutina, data));
+                string strdata = $"{data.Month}/{data.Day}";
+                ListaIdSiDataRutina.Add(new Tuple<int, string>(pr==null?0:pr.IdRutina, strdata));
             }
            
 
