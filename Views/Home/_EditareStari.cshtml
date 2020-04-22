@@ -1,2 +1,21 @@
-﻿
-<h1>Testare</h1>
+﻿@model  PrototipConfidanceBuilder.Models.ViewModelConfigRutina
+
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Status Actiuni</h4>
+    </div>
+    <div class="modal-body">
+        <table class="table">
+            @foreach(var item in Model.ListaRutinaActiuni)
+            {
+                <tr>
+            <td>@item.DenumireActiune</td>
+            <td><input type="checkbox" @(item.IdStatusActiune==2?"checked":"") /></td>
+               </tr>
+            }
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>

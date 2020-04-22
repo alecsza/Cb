@@ -6,36 +6,77 @@ using System.Web;
 
 namespace PrototipConfidanceBuilder.Models
 {
+
+    public class ViewModelConfigRutina
+    {
+        public int IdParcursRutina { get; set; }
+        public List<StatusRA> ListaRutinaActiuni { get; set; }
+
+        public ViewModelConfigRutina(List<RutinaActiune> lra, int idParcursRutina)
+        {
+            IdParcursRutina = idParcursRutina;
+            ListaRutinaActiuni = new List<StatusRA>();
+
+            foreach(var item in lra)
+            {
+                StatusRA sra = new StatusRA(item.Id, item.IdStare, item.IdRutina, item.Actiune.Denumire);
+                ListaRutinaActiuni.Add(sra);
+            }
+        }
+
+
+    }
+
+    public class StatusRA
+    {
+        public int IdRA { get; set; }
+        public int IdStatusActiune { get; set; }
+        public int IdRutina { get; set; }
+        public string DenumireActiune { get; set; }
+
+        public StatusRA(int idRa, int idSts, int idR, string denAct)
+        {
+            IdRutina = idR;
+            IdRA = idRa;
+            IdStatusActiune = idSts;
+            DenumireActiune = denAct;
+
+        }
+    }
     public class ViewModelIndex
     {
         public DateTime DataStart { get; set; }
         public DateTime DataStop { get; set; }
 
-       
+        public List<Tuple<int,DateTime>> ListaIdSiDataRutina { get; set; }
         public List<ActiunePeZile> Status7Z { get; set; }
-
        public ViewModelIndex(int IdUtil, DateTime StartDate, DateTime StopDate, DatabaseContext db)
         {
             DataStart = StartDate;
             DataStop = StopDate;
-            var ListaParcursRutina = db.ParcursRutina.ToList();
-    
-          
+            var ListaParcursRutina = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator==1).ToList();
+
+
+
+
+            ListaIdSiDataRutina = new List<Tuple<int, DateTime>>();
             List<Tuple<ParcursRutina, RutinaActiune>> RutineEligibile = new List<Tuple<ParcursRutina, RutinaActiune>>();
             Status7Z = new List<ActiunePeZile>();
 
-            foreach ( ParcursRutina pr in ListaParcursRutina)
+            for (int i = 0; i < 7; i++)
             {
-                string strData = pr.Data.Trim();
-             
-                DateTime data = DateTime.ParseExact(strData, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ;
+                DateTime data = StartDate.AddDays(i).Date;
 
+                var pr = ListaParcursRutina.FirstOrDefault(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date == data);
+                
 
-                if (data.Date >= StartDate.Date && data.Date <= StopDate.Date && pr.Rutina.IdUtilizator == IdUtil)
+                if (pr !=null)
                 {
                     var listaActiuni = pr.Rutina.RutinaActiune.Select(y => new Tuple<ParcursRutina, RutinaActiune>(pr, y)).ToList();
                     RutineEligibile.AddRange(listaActiuni);
+                    
                 }
+                ListaIdSiDataRutina.Add(new Tuple<int, DateTime>(pr==null?0:pr.IdRutina, data));
             }
            
 

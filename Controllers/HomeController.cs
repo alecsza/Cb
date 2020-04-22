@@ -83,10 +83,10 @@ namespace PrototipConfidanceBuilder.Controllers
         {
             using (var db = new DatabaseContext())
             {
-                //var ActiuniRutina = db.ParcursRutina.First(x => x.Id == IdParcursRutina).Rutina.RutinaActiune.ToList();
-
-                //return PartialView("_EditareStari", ActiuniRutina);
-                return PartialView("_EditareStari");
+                var ActiuniRutina = db.ParcursRutina.First(x => x.Id == IdParcursRutina).Rutina.RutinaActiune.ToList();
+                ViewModelConfigRutina vmc = new ViewModelConfigRutina(ActiuniRutina, IdParcursRutina);
+                return PartialView("_EditareStari", vmc);
+               // return PartialView("_EditareStari");
             } 
            
         }

@@ -275,9 +275,12 @@
                                
                                 <tr>
                                     <td></td>
-                                    @for (int i = 0; i<7; i++)
+                                    @foreach(var item in Model.ListaIdSiDataRutina)
                                     {
-                                        <td>@Model.DataStart.AddDays(i)</td>
+                                   <td>
+                                       <a  data-url=@Url.Action("GetEditRutina","Home", new { IdParcursRutina =item.Item1 }) 
+                                           class="btn btn-outline-info btn-default btnModal">@item.Item2.ToShortDateString()</a>
+                                  </td>
                                     }
                                 </tr>
                                 
