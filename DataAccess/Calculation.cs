@@ -69,6 +69,7 @@ namespace PrototipConfidanceBuilder.DataAccess
         public int IdActiune { get; set; }
         public int IdRutina { get; set; }
         public int IdStare { get; set; }
+        public int? ActiuniCumulate { get; set; }
 
         [ForeignKey("IdRutina")]
         public virtual Rutina Rutina { get; set; }

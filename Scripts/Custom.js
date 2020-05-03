@@ -26,12 +26,34 @@
         $('#MModal').modal('show');
     });
 
-    // This will NOT work because there is no '#test-element' ... yet
-    $("#test-element").on("click", function () {
-        alert("click bound directly to #test-element");
-    });
 
-    // Create the dynamic element '#test-element'
-    $('body').append('<div id="test-element">Click mee</div>');
-//});
+$(document).on("click", ".cr", function () {
+
+    var check = $(this).parent().children('input');
+    var partialUrl = $(this).attr("data-url");
+    var urlP = "";
+    //alert(check.is(":checked"));
+    if (check.is(":checked")) {
+        urlP = partialUrl + "&stare=1";
+    }
+    else {
+        urlP = partialUrl + "&stare=2";
+    }
+        // it is checked
+
+        $.ajax({
+            type: "GET",
+            traditional: true,
+            async: true,
+            cache: false,
+            url: urlP,
+            success: function (result) {
+                $.notify(result.mesaj, "success");
+            },
+            error: function (result) {
+                $.notify(result.mesaj, "error");
+            }
+        });
     
+
+});

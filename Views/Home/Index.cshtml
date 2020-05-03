@@ -129,13 +129,15 @@
                                             <label style="font-size: 1em">
                                                 @if (td.IdStare == 1)
                                                 {
-                                                    <input type="checkbox" value="" checked>
-                                                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                    <input type="checkbox" value="">
+                                                    <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
+
                                                 }
-                                                else
+                                                else if (td.IdStare == 2)
                                                 {
-                                                    <input type="checkbox" value="" >
-                                                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                    <input type="checkbox" value="" checked>
+                                                    <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
+
                                                 }
 
                                             </label>

@@ -20,7 +20,9 @@ namespace PrototipConfidanceBuilder
         protected void Session_Start(Object sender, EventArgs e)
         {
             DateTime dataDeReferinta = DateTime.Now;
+            int nrZile = 7;
             HttpContext.Current.Session.Add("dataDeRef", dataDeReferinta);
+            HttpContext.Current.Session.Add("pasZile", nrZile);
         }
     }
 }

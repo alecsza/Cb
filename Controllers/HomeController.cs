@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -47,48 +48,80 @@ namespace PrototipConfidanceBuilder.Controllers
         }
 
 
-
-
-        public ActionResult AdaugaRutina(DateTime? date)
+        public ActionResult GenRutine()
         {
-            DateTime data = date == null ? DateTime.Now : (DateTime) date;
+            DateTime date = DateTime.Now;
+            
             using (var context = new DatabaseContext())
             {
                 var genrut = context.GeneratoRutina.Where(x => x.IdUtilizator == 1);
 
-                Rutina rut = new Rutina();
-                rut.IdUtilizator = genrut.First().IdUtilizator;
-                context.Rutine.Add(rut);
-               
-                foreach(var item in genrut)
+                for (int i = 0; i < 60; i++)
                 {
-                    RutinaActiune ra = new RutinaActiune();
-                    ra.IdActiune = item.IdActiune;
-                    ra.IdRutina = rut.Id;
-                    ra.IdStare = 1;
-                    context.RutineActiuni.Add(ra);
+                    DateTime   data = date.AddDays(-i);
+                    string strData = data.ToString("yyyy-MM-dd");
+                    Rutina rut = new Rutina();
+                    ParcursRutina pr = context.ParcursRutina.FirstOrDefault(x => x.Data == strData);
+                    if (pr != null)
+                    {
+                        rut = pr.Rutina;
+                        var ras = context.RutineActiuni.Where(x => x.IdRutina == rut.Id).ToList();
+                        foreach (var ra in ras)
+                        {
+                            context.RutineActiuni.Remove(ra);
+                        }
+                    }
+                    else
+                    {
+                        rut.IdUtilizator = genrut.First().IdUtilizator;
+                        context.Rutine.Add(rut);
+                    }
 
+                    foreach (var item in genrut)
+                    {
+                        RutinaActiune ra = new RutinaActiune();
+                        ra.IdActiune = item.IdActiune;
+                        ra.IdRutina = rut.Id;
+                        ra.IdStare = 1;
+                        ra.ActiuniCumulate = 0;
+                        context.RutineActiuni.Add(ra);
+
+                    }
+                    ParcursRutina pa = new ParcursRutina();
+                    pa.IdRutina = rut.Id;
+                    pa.Data = strData;
+                    context.ParcursRutina.Add(pa);
+
+                    context.SaveChanges();
+                    
                 }
-                ParcursRutina pa = new ParcursRutina();
-                pa.IdRutina = rut.Id;
-                pa.Data = data.Date.ToString();
-                context.ParcursRutina.Add(pa);
-
-                context.SaveChanges();
                 return RedirectToAction("Index");
             }
          }
 
-        public ActionResult  GetEditRutina(int IdParcursRutina)
+        public ActionResult SchimbaStareActiune(int IdRutinaActiune, int stare)
         {
-            using (var db = new DatabaseContext())
+            using( var db =  new DatabaseContext())
             {
-                var ActiuniRutina = db.ParcursRutina.First(x => x.Id == IdParcursRutina).Rutina.RutinaActiune.ToList();
-                ViewModelConfigRutina vmc = new ViewModelConfigRutina(ActiuniRutina, IdParcursRutina);
-                return PartialView("_EditareStari", vmc);
-               // return PartialView("_EditareStari");
-            } 
-           
+                try
+                   {
+                    RutinaActiune ra = db.RutineActiuni.First(x => x.Id == IdRutinaActiune);
+                    ra.IdStare = stare;
+                    db.SaveChanges();
+                    DateTime data = DateTime.ParseExact(ra.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    Utils.ActualizareActiuniAcumulate(data, db, ra.IdActiune, 1);
+                    
+                    }
+
+                catch(Exception ex)
+                {
+                    return Json(new { mesaj = "a aparut o eroare" }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { mesaj = "salvat" }, JsonRequestBehavior.AllowGet);
+            }
         }
+
+
     }
 }

@@ -90,6 +90,7 @@ namespace PrototipConfidanceBuilder.DataAccess
             Property(p => p.IdRutina).IsRequired();
             Property(p => p.IdActiune).IsRequired();
             Property(p => p.IdStare).IsRequired();
+            Property(p => p.ActiuniCumulate).IsRequired();
         }
     }
 
