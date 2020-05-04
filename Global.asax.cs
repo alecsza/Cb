@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using PrototipConfidanceBuilder.Models;
 
 namespace PrototipConfidanceBuilder
 {
@@ -23,6 +24,7 @@ namespace PrototipConfidanceBuilder
             int nrZile = 7;
             HttpContext.Current.Session.Add("dataDeRef", dataDeReferinta);
             HttpContext.Current.Session.Add("pasZile", nrZile);
+            Utils.ActualizareRutineLaZi();
         }
     }
 }

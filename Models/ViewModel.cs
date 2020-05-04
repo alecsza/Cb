@@ -180,18 +180,17 @@ namespace PrototipConfidanceBuilder.Models
     {
         public List<ObiectRepartitie> ListaCuActiuniRepartizate { get; set; }
 
-        public ProgresPeActiunePeZile(List<Zi> ListaZile,List<DateTime> listaDate, List<int> ListaIdActiuni)
+        public ProgresPeActiunePeZile(List<Zi> ListaZile,List<DateTime> listaDate, int idActiune)
         {
 
             ListaCuActiuniRepartizate = new List<ObiectRepartitie>();
 
-            foreach ( int idRA in ListaIdActiuni)
-            {
-                List<Zi> zile = ListaZile.Where(x => x.IdActiune == idRA).ToList();
+          
+                List<Zi> zile = ListaZile.Where(x => x.IdActiune == idActiune).ToList();
                 string denumireActiune = zile.First().DenActiune;
               
                 ListaCuActiuniRepartizate.Add(Utils.RepartitieActiunePeZile(zile,listaDate));
-            }
+            
 
         }
     }
@@ -214,15 +213,21 @@ namespace PrototipConfidanceBuilder.Models
     {
         public List<ActiuneSiProcent> ProgresAct { get; set; }
 
-        public ProgresActiuni(ParcursRutina pr,DatabaseContext db)
+        public ProgresActiuni(ParcursRutina pr,DateTime dataStart,int idUtilizator,DatabaseContext db)
         {
-            List<ParcursRutina> listaPr = db.ParcursRutina.ToList();
+            
+            List<ParcursRutina> listaPr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == idUtilizator).ToList();
+
+
             ProgresAct = new List<ActiuneSiProcent>();
             foreach (var ra in pr.Rutina.RutinaActiune)
             {
-                int ziletrecute = listaPr.Where(x=>x.Rutina.RutinaActiune.Select(y => y.IdActiune).Contains(ra.IdActiune))
-                                                  .Where(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date <= DateTime.ParseExact(pr.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date).Count();
-                int ac = ra.ActiuniCumulate == null ? 0 : (int)ra.ActiuniCumulate;
+                var PrEligibile = listaPr.Where(x => x.Rutina.RutinaActiune.Select(y => y.IdActiune).Contains(ra.IdActiune))
+                                         .Where(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date >=
+                                                  dataStart.Date);
+                int ziletrecute = PrEligibile.Count();
+                var acd = PrEligibile.Select(x => x.Rutina.RutinaActiune.Where(y => y.IdActiune == ra.IdActiune && y.IdStare == 2)).SelectMany(x=>x);
+                int ac = acd.Count();
                 decimal procent = Utils.ProcentRealizatActiune(ziletrecute, ac);
                 ActiuneSiProcent asp = new ActiuneSiProcent(procent, ra.IdActiune, ra.Actiune.Denumire);
 
@@ -285,21 +290,13 @@ namespace PrototipConfidanceBuilder.Models
 
     }
 
-public class ProgresPeUltimaLuna
-    {
-
-    }
-public class ProgressPeTotal
-    {
-
-    }
 
     public static class Utils
     {
         public static decimal ProcentRealizatActiune(int NrZileTrecute, int NrActiuniRealizate)
         {
             decimal procent = ((decimal)NrActiuniRealizate * 100) /(decimal) NrZileTrecute;
-            return procent;
+            return Decimal.Round( procent,2);
 
         }
 
@@ -345,6 +342,49 @@ public class ProgressPeTotal
                 ra.ActiuniCumulate = increment;
             }
             db.SaveChanges();
+        }
+
+        public static void ActualizareRutineLaZi()
+        {
+            DateTime dataActualizare = DateTime.Now.Date;
+            string dataStr = dataActualizare.ToString("yyyy-MM-dd");
+
+            using (var context = new DatabaseContext())
+            {
+                var genrut = context.GeneratoRutina.Where(x => x.IdUtilizator == 1);
+                ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr);
+                while (prr == null)
+                {
+
+                    string strData = dataActualizare.ToString("yyyy-MM-dd");
+                    Rutina rut = new Rutina();
+                 
+                        rut.IdUtilizator = genrut.First().IdUtilizator;
+                        context.Rutine.Add(rut);
+                    
+
+                    foreach (var item in genrut)
+                    {
+                        RutinaActiune ra = new RutinaActiune();
+                        ra.IdActiune = item.IdActiune;
+                        ra.IdRutina = rut.Id;
+                        ra.IdStare = 1;
+                        ra.ActiuniCumulate = 0;
+                        context.RutineActiuni.Add(ra);
+
+                    }
+                    ParcursRutina pa = new ParcursRutina();
+                    pa.IdRutina = rut.Id;
+                    pa.Data = strData;
+                    context.ParcursRutina.Add(pa);
+
+                    strData = dataActualizare.AddDays(-1).Date.ToString("yyyy-MM-dd");
+                     prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == strData);
+
+                    context.SaveChanges();
+
+                }
+            }
         }
 
         

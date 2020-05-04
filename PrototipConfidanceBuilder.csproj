@@ -2060,6 +2060,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Statistici\Index.cshtml" />
     <Content Include="Views\Home\_EditareStari.cshtml" />
+    <Content Include="Views\Statistici\_ChartPartial.cshtml" />
+    <Content Include="Views\Statistici\_PerioadaPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
