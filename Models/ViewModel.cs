@@ -211,11 +211,16 @@ namespace PrototipConfidanceBuilder.Models
 
     public class ProgresActiuni
     {
+        public string StartDate { get; set; }
+        public string StopDate { get; set; }
         public List<ActiuneSiProcent> ProgresAct { get; set; }
 
         public ProgresActiuni(ParcursRutina pr,DateTime dataStart,int idUtilizator,DatabaseContext db)
         {
-            
+            StartDate = dataStart.ToString("dd-MM-yyyy");
+            StopDate = DateTime.Now.ToString("dd-MM-yyyy");
+
+
             List<ParcursRutina> listaPr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == idUtilizator).ToList();
 
 
@@ -258,19 +263,7 @@ namespace PrototipConfidanceBuilder.Models
 
     }
 
-    public class ProgresPe6Luni
-    {
-        public List<string> ListaOx { get; set; }
-        public List<string> ListOy { get; set; }
-        public List<string> Valori { get; set; }
-
-        public ProgresPe6Luni(List<ProgresPeLuna> ListaPLuni, int NrUnitati)
-        {
-
-        }
-
-    }
-
+   
    
     public class ObiectRepartitie
     {
@@ -336,12 +329,26 @@ namespace PrototipConfidanceBuilder.Models
                DateTime.ParseExact(x.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date >= data.Date).OrderBy(z=>z.Id).ToList();
             int increment =  actiuneStrat.ActiuniCumulate== null? 0: (int) actiuneStrat.ActiuniCumulate;
 
-            foreach (var ra in listaActiuniDeActualizat.OrderBy(x => DateTime.ParseExact(x.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date))
+            var laOrd = listaActiuniDeActualizat.OrderBy(x => DateTime.ParseExact(x.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date);
+            int nrElem = laOrd.Count();
+
+            foreach (var ra in laOrd)
             {
+                nrElem -= 1;
+                GeneratorRutina ga = ra.Actiune.GeneratorRutina.FirstOrDefault(x => x.IdUtilizator == idUtilizator);
                 increment = increment + ra.IdStare - 1;
                 ra.ActiuniCumulate = increment;
+                if(ga!=null && nrElem<=1)
+                ga.TotalAc = increment;
             }
             db.SaveChanges();
+        }
+
+        public static int  UtilizatorLogat()
+        {
+            int idUtilizator = (int)  HttpContext.Current.Session["IdUtilizator"];
+
+            return idUtilizator;
         }
 
         public static void ActualizareRutineLaZi()
@@ -369,7 +376,7 @@ namespace PrototipConfidanceBuilder.Models
                         ra.IdActiune = item.IdActiune;
                         ra.IdRutina = rut.Id;
                         ra.IdStare = 1;
-                        ra.ActiuniCumulate = 0;
+                        ra.ActiuniCumulate = item.TotalAc;
                         context.RutineActiuni.Add(ra);
 
                     }

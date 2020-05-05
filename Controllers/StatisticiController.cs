@@ -73,5 +73,71 @@ namespace PrototipConfidanceBuilder.Controllers
             }
 
         }
+
+        public ActionResult ProgresPe7Zile()
+        {
+
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                int nrTotalZile = db.ParcursRutina.Count();
+                int actualizare = nrTotalZile > 7 ? 7 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+                return RedirectToAction("Index");
+
+            }
+        }
+        public ActionResult ProgresPe30Zile()
+        {
+
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                int nrTotalZile = db.ParcursRutina.Count();
+                int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+                return RedirectToAction("Index");
+
+            }
+        }
+
+        public ActionResult ProgresPe90Zile()
+        {
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                int nrTotalZile = db.ParcursRutina.Count();
+                int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+                return RedirectToAction("Index");
+
+            }
+
+            
+        }
+
+        public ActionResult ProgresPe6Luni()
+        {
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                int nrTotalZile = db.ParcursRutina.Count();
+                int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+                return RedirectToAction("Index");
+
+            }
+
+
+        }
+
+        public ActionResult ProgresComplet()
+        {
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                int nrTotalZile = db.ParcursRutina.Count();
+                System.Web.HttpContext.Current.Session["pasZile"] = nrTotalZile;
+                return RedirectToAction("Index");
+
+            }
+
+
+        }
     }
 }

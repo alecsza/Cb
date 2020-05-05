@@ -26,7 +26,6 @@ namespace PrototipConfidanceBuilder.Controllers
 
             }
 
-     
         }
 
         public ActionResult Inapoi()

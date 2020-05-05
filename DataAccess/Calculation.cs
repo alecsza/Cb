@@ -26,8 +26,8 @@ namespace PrototipConfidanceBuilder.DataAccess
         public string Denumire { get; set; }
 
         public virtual ICollection<RutinaActiune> RutinaActiune { get; set; } = new HashSet<RutinaActiune>();
-       
 
+        public virtual ICollection<GeneratorRutina> GeneratorRutina { get; set; } = new HashSet<GeneratorRutina>();
     }
 
     public class ParcursRutina
@@ -45,6 +45,10 @@ namespace PrototipConfidanceBuilder.DataAccess
     {
         public int Id { get; set; }
         public int IdUtilizator { get; set; }
+
+        [ForeignKey("IdUtilizator")]
+        public virtual Utilizator Utilizator { get; set; }
+
         public virtual ICollection<ParcursRutina> ParcursRutina { get; set; } = new HashSet<ParcursRutina>();
         public virtual ICollection<RutinaActiune> RutinaActiune { get; set; } = new HashSet<RutinaActiune>(); 
 
@@ -54,13 +58,23 @@ namespace PrototipConfidanceBuilder.DataAccess
     {
         public int Id { get; set; }
         public string Denumire { get; set; }
-
-   }
+       
+    }
 
     public class Utilizator
     {
         public int Id { get; set; }
         public string Nume { get; set; }
+        public int? IdUltimParcursRutina { get; set; }
+        public string Parola { get; set; }
+
+
+        [ForeignKey("IdUltimParcursRutina")]
+        public virtual ParcursRutina UltimParcursRutina { get; set; }
+
+
+        public virtual ICollection<GeneratorRutina> GeneratorRutina { get; set; } = new HashSet<GeneratorRutina>();
+
     }
 
     public class RutinaActiune
@@ -86,6 +100,10 @@ namespace PrototipConfidanceBuilder.DataAccess
         public int Id { get; set; }
         public int IdActiune { get; set; }
         public int IdUtilizator { get; set; }
+
+        public int? Activ { get; set; }
+
+        public int? TotalAc { get; set; }
 
         [ForeignKey("IdUtilizator")]
         public virtual Utilizator Utilizator { get; set; }

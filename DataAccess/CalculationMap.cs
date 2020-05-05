@@ -77,7 +77,9 @@ namespace PrototipConfidanceBuilder.DataAccess
 
                 Property(p => p.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(p => p.Nume).IsRequired();
-            }
+                Property(p => p.IdUltimParcursRutina).IsRequired();
+                Property(p => p.Parola).IsRequired();
+        }
         }
 
     public class RutinaActiuneMap : EntityTypeConfiguration<RutinaActiune>
@@ -103,6 +105,8 @@ namespace PrototipConfidanceBuilder.DataAccess
             Property(p => p.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
             Property(p => p.IdUtilizator).IsRequired();
             Property(p => p.IdActiune).IsRequired();
+            Property(p => p.Activ).IsRequired();
+            Property(p => p.TotalAc).IsRequired();
         }
     }
 

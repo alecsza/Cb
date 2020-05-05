@@ -1,0 +1,78 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model string
+<h2 class="text-center">Aici mecanismul autentificarii este dezvoltat pentru a simula comportamentul aplicației pe un telefon mobil </h2>
+<h3 class="text-center text-success">@Model</h3>
+
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+                <div class="col-lg-6 ">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Autentificare</h1>
+                        </div>
+                        <form class="user" action=@Url.Action("Logare","Autentificare")>
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user"  name="util" id="utilL" placeholder="Nume de utilizator">
+                                </div>
+
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="password" class="form-control form-control-user"  name="parola" id="parolaL" placeholder="Parolă">
+                                </div>
+
+                            </div>
+                            <input type="submit" value="Logare" class="btn btn-success btn-user btn-block" />
+
+
+
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <p class="text-info">IMPORTANT!</p>
+                            <p>Nu prea am implementat mecansimele de recuperare cont sau resetare parolă  </p>
+                            <p>Așa că vă recomand să creați alt cont</p>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Creați un cont</h1>
+                        </div>
+                        <form class="user" action=@Url.Action("Inregistrare","Autentificare") method="post">
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user" id="utilA" name="util" placeholder="Nume de utilizator">
+                                </div>
+
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="password" class="form-control form-control-user" id="parolaA" name="parola" placeholder="Parolă">
+                                </div>
+
+                            </div>
+                            <input type="submit" value=" Înregistrare" class="btn btn-primary btn-user btn-block"/>
+                           
+
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <p class="text-danger">IMPORTANT!</p>
+                            <p>Nu folosiți date familiare pentru ca nici securitatea nu prea am implementat-o </p>
+                            <p>Mulțumesc</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

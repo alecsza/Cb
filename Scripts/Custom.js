@@ -1,6 +1,5 @@
 ﻿
 
-
 //$(document).ready(function () {
     // This WILL work because we are listening on the 'document', 
     // for a click on an element with an ID of #test-element
@@ -178,4 +177,16 @@ function clearCanvas() {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-};
+}
+
+
+$(document).on("click", ".perioada", function () {
+
+    var url = $(this).attr('data-url');
+    window.open(url);
+   // $('.modal-content').load(url);
+
+  
+});
+
+
