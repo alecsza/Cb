@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -25,9 +26,10 @@ namespace PrototipConfidenceBuilder.DataAccess
         public static DbConnection GetConnection()
         {
             var connection = ConfigurationManager.ConnectionStrings["SQLiteConnection"];
+            string fixedConnectionString = connection.ConnectionString.Replace("{AppDir}", AppDomain.CurrentDomain.BaseDirectory);
             var factory = DbProviderFactories.GetFactory(connection.ProviderName);
             var dbCon = factory.CreateConnection();
-            dbCon.ConnectionString = connection.ConnectionString;
+            dbCon.ConnectionString = fixedConnectionString;
             return dbCon;
         }
 
