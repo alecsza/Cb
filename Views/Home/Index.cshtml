@@ -16,58 +16,29 @@
       <!-- Main Content -->
         <div id="content">
 
-            <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                <!-- Sidebar Toggle (Topbar) -->
-                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <span class="text-lg-center text-sm-center center-block">Confidence Builder</span>
-
-
-
-           
-                <ul class="navbar-nav ml-auto">
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item dropdown no-arrow pull-right">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
-                            <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Profile
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Settings
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Activity Log
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Logout
-                            </a>
-                        </div>
-                    </li>
-                    </ul>
-                    <!-- Topbar Search -->
-
-
-            </nav>
+            @Html.Partial("~/Views/_TopHeader.cshtml",Model.UP)
             <!-- End of Topbar -->
             @*table*@
             <div class="card shadow mb-4">
+
+                @if (Model.Status7Z.Count() < 1)
+                {
+                <div class="row justify-content-center">
+                    <a href=@Url.Action("GenRutine","Home") class="center-block btn btn-md btn-primary btn-icon-split  ">
+                        <span class="icon text-white-50">
+                            Generare rutina pe ultiemele 60 de zile
+                            <i class="fa fa-gear"></i>
+                        </span>
+                    </a>
+                </div>
+                    }
+
+
                 <div class="card-header py-3">
-                   
+
                     <div class="text-center">
-                      
-                            <span class="center-block text-info" style="font-size:large">  @Model.DataStart.Date.ToShortDateString() - @Model.DataStop.Date.ToShortDateString()</span>
+
+                        <span class="center-block text-info" style="font-size:large">  @Model.DataStart.Date.ToShortDateString() - @Model.DataStop.Date.ToShortDateString()</span>
 
                         <a href=@Url.Action("Inapoi","Home") class="btn btn-sm btn-info btn-icon-split pull-left ">
                             <span class="icon text-white-50">
@@ -78,7 +49,7 @@
                         @*<button type="button" data-url=@Url.Action("GetEditRutina","Home", new { IdParcursRutina =1 }) class="btn btn-info btn-lg btnModal" >Open Modal</button>*@
                         <a href=@Url.Action("Inainte","Home") class="btn btn-sm btn-info btn-icon-split pull-right float-right">
 
-                           @* <span class="text">Înainte</span>*@
+                            @* <span class="text">Înainte</span>*@
                             <span class="icon text-white-50">
                                 <i class="fa fa-arrow-right"></i>
                             </span>
@@ -88,56 +59,56 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                            <table class="table">
-                               
-                                <tr class="text-center">
-                                    <td></td>
-                                    @foreach(var item in Model.ListaIdSiDataRutina)
-                                    {
-                                   <td>
-                                       <a  data-url=@Url.Action("GetEditRutina","Home", new { IdParcursRutina =item.Item1 }) 
+                        <table class="table">
+
+                            <tr class="text-center">
+                                <td></td>
+                                @foreach (var item in Model.ListaIdSiDataRutina)
+                                {
+                                    <td>
+                                        <a data-url=@Url.Action("GetEditRutina","Home", new { IdParcursRutina =item.Item1 })
                                            class="btnModal">@item.Item2</a>
-                                  </td>
+                                    </td>
+                                }
+                            </tr>
+
+                            @foreach (var tr in Model.Status7Z)
+                            {
+                                <tr class="text-center">
+                                    <td>@tr.Denumire</td>
+                                    @foreach (var td in tr.ListaZile)
+                                    {
+                                        <td>
+                                            @*<div class="custom-control custom-checkbox">
+                                        <input class="custom-control-input" type="checkbox" @(td.IdStare == 1 ? "checked" : "") />
+                                    </div>*@
+                                            <div class="checkbox">
+                                                <label style="font-size: 1em">
+                                                    @if (td.IdStare == 1)
+                                                    {
+                                                        <input type="checkbox" value="">
+                                                        <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
+
+                                                    }
+                                                    else if (td.IdStare == 2)
+                                                    {
+                                                        <input type="checkbox" value="" checked>
+                                                        <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
+
+                                                    }
+
+                                                </label>
+                                            </div>
+                                        </td>
                                     }
                                 </tr>
-                                
-                                @foreach (var tr in Model.Status7Z)
-                                {
-                                    <tr class="text-center">
-                                        <td>@tr.Denumire</td>
-                                        @foreach (var td in tr.ListaZile)
-                                        {
-                                    <td>
-                                        @*<div class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" type="checkbox" @(td.IdStare == 1 ? "checked" : "") />
-                                        </div>*@
-                                        <div class="checkbox">
-                                            <label style="font-size: 1em">
-                                                @if (td.IdStare == 1)
-                                                {
-                                                    <input type="checkbox" value="">
-                                                    <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
-
-                                                }
-                                                else if (td.IdStare == 2)
-                                                {
-                                                    <input type="checkbox" value="" checked>
-                                                    <span class="cr" data-url=@Url.Action("SchimbaStareActiune","Home",new {IdRutinaActiune =td.IdRutinaActiune  })><i class="cr-icon fa fa-check"></i></span>
-
-                                                }
-
-                                            </label>
-                                        </div>
-                                    </td>
-                                        }
-                                    </tr>
-                                }
-                            </table>
-                        </div>
+                            }
+                        </table>
                     </div>
-               </div>
-
+                </div>
             </div>
+
+        </div>
         </div>
       </div>
     </body>

@@ -58,8 +58,9 @@ namespace PrototipConfidenceBuilder.Controllers
                     Util.Parola = parola;
                     db.Utilizatori.Add(Util);
                     db.SaveChanges();
+                    string mesaj = "Este necesar să adăugați cel putin o acțiune în rutina dumneavoastră";
                     System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
-                    return RedirectToAction("Index", "Rutina");
+                    return RedirectToAction("Index", "AdministrareRutina", new { mesaj });
                 }
             }
         }

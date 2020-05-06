@@ -11,13 +11,19 @@ namespace PrototipConfidenceBuilder.Controllers
     public class AdministrareRutinaController : Controller
     {
         // GET: AdministrareRutina
-        public ActionResult Index()
+        public ActionResult Index(string mesaj = "")
         {
             int IdUtilizator = Utils.UtilizatorLogat();
             using (var db = new DatabaseContext())
             {
+                int IdUtil = Utils.UtilizatorLogat();
+                if (IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
                 List<GeneratorRutina> LGR = db.GeneratorRutina.Where(x => x.IdUtilizator == IdUtilizator).ToList();
-                ViewModelAdminGeneratorRutine vm = new ViewModelAdminGeneratorRutine(LGR, IdUtilizator);
+                ViewModelAdminGeneratorRutine vm = new ViewModelAdminGeneratorRutine(LGR, util, mesaj);
 
                 return View("Index",vm);
             }
@@ -75,7 +81,9 @@ namespace PrototipConfidenceBuilder.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { mesaj = $"a apărut o eroare, așa din senin.... {ex.Message}" }, JsonRequestBehavior.AllowGet);
+                string mesaj = mesaj = $"a apărut o eroare, așa din senin.... {ex.Message}";
+
+                return RedirectToAction("Index", new { mesaj });
             }
 
 

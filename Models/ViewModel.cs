@@ -10,11 +10,14 @@ namespace PrototipConfidenceBuilder.Models
 
     public class ViewModelConfigRutina
     {
+
+        public UtilizatorSiPagina UP { get; set; }
         public int IdParcursRutina { get; set; }
         public List<StatusRA> ListaRutinaActiuni { get; set; }
 
-        public ViewModelConfigRutina(List<RutinaActiune> lra, int idParcursRutina)
+        public ViewModelConfigRutina(List<RutinaActiune> lra,Utilizator util, int idParcursRutina)
         {
+            UP = new UtilizatorSiPagina(util, "Instoric Rutină");
             IdParcursRutina = idParcursRutina;
             ListaRutinaActiuni = new List<StatusRA>();
 
@@ -48,16 +51,20 @@ namespace PrototipConfidenceBuilder.Models
         public DateTime DataStart { get; set; }
         public DateTime DataStop { get; set; }
 
+        public UtilizatorSiPagina UP { get; set; }
+
         public List<Tuple<int,string,DateTime>> ListaIdSiDataRutina { get; set; }
         public List<ActiunePeZile> Status7Z { get; set; }
 
-       public ViewModelIndex(int IdUtil, DateTime StartDate, DateTime StopDate, DatabaseContext db)
+       public ViewModelIndex(Utilizator util, DateTime StartDate, DateTime StopDate, DatabaseContext db)
         {
             DataStart = StartDate;
             DataStop = StopDate;
+            UP = new UtilizatorSiPagina(util, "Istoric Rutină");
+
             double NrZile = Math.Abs( (DataStart.Date - DataStop.Date).TotalDays) ; // perfect
 
-            var ListaParcursRutina = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator==1).ToList();
+            var ListaParcursRutina = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator==util.Id).ToList();
 
 
             ListaIdSiDataRutina = new List<Tuple<int, string, DateTime>>();
@@ -85,7 +92,7 @@ namespace PrototipConfidenceBuilder.Models
             foreach (int id in ListaActiuni)
             {
                 var actiunePeZile = RutineEligibile.Where(x => x.Item2.IdActiune == id).ToList();
-                Status7Z.Add(new ActiunePeZile(actiunePeZile, StartDate,6));
+                Status7Z.Add(new ActiunePeZile(actiunePeZile, StartDate,(int)NrZile));
             }
 
         }
@@ -157,7 +164,7 @@ namespace PrototipConfidenceBuilder.Models
             DataD = data.Date;
             string zi = data.Day.ToString();
             string luna = data.Month.ToString();
-            Data = $"{luna}/{zi}";
+            Data = $"{zi}/{luna}";
             IdStare = idStare;
             DenStare = denStare;
             IdRutinaActiune = idRa;
@@ -208,35 +215,54 @@ namespace PrototipConfidenceBuilder.Models
         }
     }
 
+    public class UtilizatorSiPagina
+    {
+        public string NumeUtilizator { get; set; }
+        public int IdUtilizator { get; set; }
+        public string DenumirePagina { get; set; }
+
+        public UtilizatorSiPagina(Utilizator util, string denPagina)
+        {
+            NumeUtilizator = util.Nume;
+            IdUtilizator = util.Id;
+            DenumirePagina = denPagina;
+        }
+    }
 
     public class ProgresActiuni
     {
         public string StartDate { get; set; }
         public string StopDate { get; set; }
+
+        public UtilizatorSiPagina UP { get; set; }
         public List<ActiuneSiProcent> ProgresAct { get; set; }
 
-        public ProgresActiuni(ParcursRutina pr,DateTime dataStart,int idUtilizator,DatabaseContext db)
+        public ProgresActiuni(ParcursRutina pr,DateTime dataStart,Utilizator util,DatabaseContext db)
         {
             StartDate = dataStart.ToString("dd-MM-yyyy");
             StopDate = DateTime.Now.ToString("dd-MM-yyyy");
+            UP = new UtilizatorSiPagina(util, "Parcurs Rutină");
 
 
-            List<ParcursRutina> listaPr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == idUtilizator).ToList();
+            List<ParcursRutina> listaPr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == util.Id).ToList();
 
 
             ProgresAct = new List<ActiuneSiProcent>();
-            foreach (var ra in pr.Rutina.RutinaActiune)
+            if (pr != null)
             {
-                var PrEligibile = listaPr.Where(x => x.Rutina.RutinaActiune.Select(y => y.IdActiune).Contains(ra.IdActiune))
-                                         .Where(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date >=
-                                                  dataStart.Date);
-                int ziletrecute = PrEligibile.Count();
-                var acd = PrEligibile.Select(x => x.Rutina.RutinaActiune.Where(y => y.IdActiune == ra.IdActiune && y.IdStare == 2)).SelectMany(x=>x);
-                int ac = acd.Count();
-                decimal procent = Utils.ProcentRealizatActiune(ziletrecute, ac);
-                ActiuneSiProcent asp = new ActiuneSiProcent(procent, ra.IdActiune, ra.Actiune.Denumire);
+                foreach (var ra in pr.Rutina.RutinaActiune)
+                {
+                    var PrEligibile = listaPr.Where(x => x.Rutina.RutinaActiune.Select(y => y.IdActiune).Contains(ra.IdActiune))
+                                             .Where(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date >=
+                                                      dataStart.Date);
+                    int ziletrecute = PrEligibile.Count();
+                    var acd = PrEligibile.Select(x => x.Rutina.RutinaActiune.Where(y => y.IdActiune == ra.IdActiune && y.IdStare == 2)).SelectMany(x => x);
+                    int ac = acd.Count();
+                    decimal procent = Utils.ProcentRealizatActiune(ziletrecute, ac);
+                    ActiuneSiProcent asp = new ActiuneSiProcent(procent, ra.IdActiune, ra.Actiune.Denumire);
 
-                ProgresAct.Add(asp);
+                    ProgresAct.Add(asp);
+                }
             }
         }
     }
@@ -358,7 +384,7 @@ namespace PrototipConfidenceBuilder.Models
 
             using (var context = new DatabaseContext())
             {
-                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == 1);
+                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator ==Utils.UtilizatorLogat() );
                 ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr);
                 while (prr == null)
                 {

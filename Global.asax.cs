@@ -21,10 +21,10 @@ namespace PrototipConfidenceBuilder
         protected void Session_Start(Object sender, EventArgs e)
         {
             DateTime dataDeReferinta = DateTime.Now;
-            int nrZile = 7;
+            int nrZile = 6;
             HttpContext.Current.Session.Add("dataDeRef", dataDeReferinta);
             HttpContext.Current.Session.Add("pasZile", nrZile);
-            HttpContext.Current.Session.Add("IdUtilizator", 1);
+            HttpContext.Current.Session.Add("IdUtilizator", 0);
             Utils.ActualizareRutineLaZi();
         }
     }

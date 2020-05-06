@@ -21,10 +21,16 @@ namespace PrototipConfidenceBuilder.Controllers
 
             using (var context = new DatabaseContext())
             {
+                int IdUtil = Utils.UtilizatorLogat();
+                if (IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = context.Utilizatori.First(x => x.Id == IdUtil);
 
                 //Get all the calculations again from the db (our new Calculation should be there)
-             
-                ViewModelIndex vmi = new ViewModelIndex(1, ddr.AddDays(-pasZile+1), ddr, context);
+
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-pasZile), ddr, context);
                 var listaZile = vmi.Status7Z.Select(x => x.ListaZile).SelectMany(x=>x).ToList();
                 var listaDate = vmi.ListaIdSiDataRutina.Select(x => x.Item3).ToList();
                ProgresPeActiunePeZile progresActiunePeZile = new ProgresPeActiunePeZile(listaZile, listaDate, idActiune);
@@ -44,13 +50,18 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult ProcentrealizatDinRutina()
         {
-            int idutilizator = 1;
-            DateTime dinData = (DateTime)HttpContext.Session["dataDeRef"];
+            DateTime panaLaData = DateTime.Now;
             int pasZile = (int)HttpContext.Session["pasZile"];
             using (DatabaseContext db =  new DatabaseContext())
             {
-                ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == dinData && x.Rutina.IdUtilizator == idutilizator);
-                ProgresActiuni pa = new ProgresActiuni(pr,dinData.AddDays(-pasZile +1),1,db);
+                int IdUtil = Utils.UtilizatorLogat();
+                if (IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+                ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == panaLaData && x.Rutina.IdUtilizator == util.Id);
+                ProgresActiuni pa = new ProgresActiuni(pr,panaLaData.AddDays(-pasZile ),util,db);
                 return View ("Index", pa);
 
             }
@@ -60,17 +71,37 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult Index()
         {
-            int idutilizator = 1;
-            DateTime dinData = (DateTime)HttpContext.Session["dataDeRef"];
+
+            DateTime panaLaData = DateTime.Now;
             int pasZile = (int)HttpContext.Session["pasZile"];
-            string dinDataStr = dinData.ToString("yyyy-MM-dd");
+            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
             using (DatabaseContext db = new DatabaseContext())
             {
-                ParcursRutina pr = db.ParcursRutina.First(x => x.Data.Trim() == dinDataStr && x.Rutina.IdUtilizator == idutilizator);
-                ProgresActiuni pa = new ProgresActiuni(pr, dinData.AddDays(-pasZile + 1),1, db);
+                int IdUtil = Utils.UtilizatorLogat();
+                if (IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+              
+                if(util.UltimParcursRutina == null)
+                {
+                    ParcursRutina u_pr = null;
+                    List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
+                    if (lpr.Count() > 0)
+                    {
+                        u_pr = lpr.First(x => x.Data == panaLaDataStr);
+
+                    }
+                    util.UltimParcursRutina = u_pr;
+                    db.SaveChanges();
+                }
+                ParcursRutina pr = util.UltimParcursRutina;
+            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-pasZile ),util, db);
                 return View("Index", pa);
 
             }
+
 
         }
 
@@ -79,8 +110,9 @@ namespace PrototipConfidenceBuilder.Controllers
 
             using (DatabaseContext db = new DatabaseContext())
             {
-                int nrTotalZile = db.ParcursRutina.Count();
-                int actualizare = nrTotalZile > 7 ? 7 : nrTotalZile;
+                int IdUtil = Utils.UtilizatorLogat();
+                int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
+                int actualizare = nrTotalZile > 6 ? 6 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
                 return RedirectToAction("Index");
 
@@ -91,7 +123,8 @@ namespace PrototipConfidenceBuilder.Controllers
 
             using (DatabaseContext db = new DatabaseContext())
             {
-                int nrTotalZile = db.ParcursRutina.Count();
+                int IdUtil = Utils.UtilizatorLogat();
+                int nrTotalZile = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
                 return RedirectToAction("Index");
@@ -103,27 +136,27 @@ namespace PrototipConfidenceBuilder.Controllers
         {
             using (DatabaseContext db = new DatabaseContext())
             {
-                int nrTotalZile = db.ParcursRutina.Count();
+                int IdUtil = Utils.UtilizatorLogat();
+                int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
                 return RedirectToAction("Index");
 
             }
 
-            
         }
 
         public ActionResult ProgresPe6Luni()
         {
             using (DatabaseContext db = new DatabaseContext())
             {
-                int nrTotalZile = db.ParcursRutina.Count();
+                int IdUtil = Utils.UtilizatorLogat();
+                int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
                 return RedirectToAction("Index");
 
             }
-
 
         }
 
@@ -131,7 +164,8 @@ namespace PrototipConfidenceBuilder.Controllers
         {
             using (DatabaseContext db = new DatabaseContext())
             {
-                int nrTotalZile = db.ParcursRutina.Count();
+                int IdUtil = Utils.UtilizatorLogat();
+                int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 System.Web.HttpContext.Current.Session["pasZile"] = nrTotalZile;
                 return RedirectToAction("Index");
 

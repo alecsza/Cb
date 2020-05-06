@@ -17,11 +17,16 @@ namespace PrototipConfidenceBuilder.Controllers
         {
             using (var context = new DatabaseContext())
             {
-           
+                int IdUtil = Utils.UtilizatorLogat();
+                if(IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = context.Utilizatori.First(x => x.Id == IdUtil);
 
                 //Get all the calculations again from the db (our new Calculation should be there)
                 DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-                ViewModelIndex vmi = new ViewModelIndex(1, ddr.AddDays(-6), ddr, context);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, context);
                 return View(vmi);
 
             }
@@ -49,18 +54,34 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult GenRutine()
         {
+
+
             DateTime date = DateTime.Now;
             
             using (var context = new DatabaseContext())
             {
-                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == 1);
+
+
+                int IdUtil = Utils.UtilizatorLogat();
+                if (IdUtil == 0)
+                {
+                    return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+                }
+                Utilizator util = context.Utilizatori.First(x => x.Id == IdUtil);
+
+                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == IdUtil);
+
+                if (genrut.Count() < 1)
+                {
+                    return RedirectToAction("Index", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o acțiune în rutină" });
+                }
 
                 for (int i = 0; i < 60; i++)
                 {
                     DateTime   data = date.AddDays(-i);
                     string strData = data.ToString("yyyy-MM-dd");
                     Rutina rut = new Rutina();
-                    ParcursRutina pr = context.ParcursRutina.FirstOrDefault(x => x.Data == strData);
+                    ParcursRutina pr = context.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == util.Id).FirstOrDefault(x => x.Data == strData);
                     if (pr != null)
                     {
                         rut = pr.Rutina;
@@ -72,7 +93,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     }
                     else
                     {
-                        rut.IdUtilizator = genrut.First().IdUtilizator;
+                        rut.IdUtilizator = util.Id;
                         context.Rutine.Add(rut);
                     }
 
@@ -104,11 +125,12 @@ namespace PrototipConfidenceBuilder.Controllers
             {
                 try
                    {
+                    int IdUtil = Utils.UtilizatorLogat();
                     RutinaActiune ra = db.RutineActiuni.First(x => x.Id == IdRutinaActiune);
                     ra.IdStare = stare;
                     db.SaveChanges();
                     DateTime data = DateTime.ParseExact(ra.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    Utils.ActualizareActiuniAcumulate(data, db, ra.IdActiune, 1);
+                    Utils.ActualizareActiuniAcumulate(data, db, ra.IdActiune, IdUtil);
                     
                     }
 

@@ -183,7 +183,7 @@ function clearCanvas() {
 $(document).on("click", ".perioada", function () {
 
     var url = $(this).attr('data-url');
-    window.open(url);
+    window.location.href =url;
    // $('.modal-content').load(url);
 
   
@@ -223,16 +223,15 @@ $(document).on("click", ".checkRA", function () {
 
 });
 
-creareGA
-
 $(document).on("change", "#creareGA", function () {
 
     var den = $(this).val();
     var encod_den = encodeURIComponent(den);
     var urlPartial = $(this).attr('data-url');
     var url = urlPartial + '?denumire=' + encod_den;
-  
-    window.open(url);
+
+    window.location.href = url;
+   // window.open(url);
     // $('.modal-content').load(url);
 
 
