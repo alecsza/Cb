@@ -384,7 +384,8 @@ namespace PrototipConfidenceBuilder.Models
 
             using (var context = new DatabaseContext())
             {
-                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator ==Utils.UtilizatorLogat() );
+                int idUtilLogat = Utils.UtilizatorLogat();
+                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat);
                 ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr);
                 while (prr == null)
                 {
@@ -392,7 +393,7 @@ namespace PrototipConfidenceBuilder.Models
                     string strData = dataActualizare.ToString("yyyy-MM-dd");
                     Rutina rut = new Rutina();
                  
-                        rut.IdUtilizator = genrut.First().IdUtilizator;
+                        rut.IdUtilizator = idUtilLogat;
                         context.Rutine.Add(rut);
                     
 
