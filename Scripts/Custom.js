@@ -190,3 +190,50 @@ $(document).on("click", ".perioada", function () {
 });
 
 
+//gen rutine admin
+
+$(document).on("click", ".checkRA", function () {
+
+    var check = $(this);
+    var partialUrl = $(this).attr("data-url");
+    var urlP = "";
+    //alert(check.is(":checked"));
+    if (check.is(":checked")) {
+        urlP = partialUrl + "&stare=1";
+    }
+    else {
+        urlP = partialUrl + "&stare=0";
+    }
+    // it is checked
+
+    $.ajax({
+        type: "GET",
+        traditional: true,
+        async: true,
+        cache: false,
+        url: urlP,
+        success: function (result) {
+            $.notify(result.mesaj, "success");
+        },
+        error: function (result) {
+            $.notify(result.mesaj, "error");
+        }
+    });
+
+
+});
+
+creareGA
+
+$(document).on("change", "#creareGA", function () {
+
+    var den = $(this).val();
+    var encod_den = encodeURIComponent(den);
+    var urlPartial = $(this).attr('data-url');
+    var url = urlPartial + '?denumire=' + encod_den;
+  
+    window.open(url);
+    // $('.modal-content').load(url);
+
+
+});

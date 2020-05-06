@@ -24,7 +24,7 @@ namespace PrototipConfidanceBuilder
             int nrZile = 7;
             HttpContext.Current.Session.Add("dataDeRef", dataDeReferinta);
             HttpContext.Current.Session.Add("pasZile", nrZile);
-            HttpContext.Current.Session.Add("IdUtilizator", 0);
+            HttpContext.Current.Session.Add("IdUtilizator", 1);
             Utils.ActualizareRutineLaZi();
         }
     }
