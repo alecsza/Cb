@@ -1,5 +1,5 @@
-﻿using PrototipConfidanceBuilder.DataAccess;
-using PrototipConfidanceBuilder.Models;
+﻿using PrototipConfidenceBuilder.DataAccess;
+using PrototipConfidenceBuilder.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Windows;
 
-namespace PrototipConfidanceBuilder.Controllers
+namespace PrototipConfidenceBuilder.Controllers
 {
     public class StatisticiController : Controller
     {

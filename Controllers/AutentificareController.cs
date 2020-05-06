@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using PrototipConfidanceBuilder.Models;
-using PrototipConfidanceBuilder.DataAccess;
+using PrototipConfidenceBuilder.Models;
+using PrototipConfidenceBuilder.DataAccess;
 
-namespace PrototipConfidanceBuilder.Controllers
+namespace PrototipConfidenceBuilder.Controllers
 {
     public class AutentificareController : Controller
     {
@@ -33,7 +33,7 @@ namespace PrototipConfidanceBuilder.Controllers
                 else
                 {
                    string mesaj = "Utilizatorul sau parola sunt incorecte";
-                    return RedirectToAction("Index","Autentificare", new { mesaj });
+                   return RedirectToAction("Index","Autentificare", new { mesaj });
                 }
             }
         }

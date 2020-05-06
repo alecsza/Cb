@@ -5,7 +5,7 @@ using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Web;
 
-namespace PrototipConfidanceBuilder.DataAccess
+namespace PrototipConfidenceBuilder.DataAccess
 {
     public class CalculationMap : EntityTypeConfiguration<Calculation>
     {

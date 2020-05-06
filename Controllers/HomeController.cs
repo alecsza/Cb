@@ -4,10 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using PrototipConfidanceBuilder.DataAccess;
-using PrototipConfidanceBuilder.Models;
+using PrototipConfidenceBuilder.DataAccess;
+using PrototipConfidenceBuilder.Models;
 
-namespace PrototipConfidanceBuilder.Controllers
+namespace PrototipConfidenceBuilder.Controllers
 {
 
     public class HomeController : Controller
@@ -53,7 +53,7 @@ namespace PrototipConfidanceBuilder.Controllers
             
             using (var context = new DatabaseContext())
             {
-                var genrut = context.GeneratoRutina.Where(x => x.IdUtilizator == 1);
+                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == 1);
 
                 for (int i = 0; i < 60; i++)
                 {

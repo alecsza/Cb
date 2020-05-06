@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using PrototipConfidanceBuilder.DataAccess;
+using PrototipConfidenceBuilder.DataAccess;
 
-namespace PrototipConfidanceBuilder.Models
+namespace PrototipConfidenceBuilder.Models
 {
     public class ViewModelAdminGeneratorRutine
     {

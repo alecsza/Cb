@@ -5,9 +5,9 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using PrototipConfidanceBuilder.Models;
+using PrototipConfidenceBuilder.Models;
 
-namespace PrototipConfidanceBuilder
+namespace PrototipConfidenceBuilder
 {
     public class MvcApplication : System.Web.HttpApplication
     {

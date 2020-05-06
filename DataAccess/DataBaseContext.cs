@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
 
-namespace PrototipConfidanceBuilder.DataAccess
+namespace PrototipConfidenceBuilder.DataAccess
 {
     public class DatabaseContext : DbContext
     {
@@ -14,7 +14,7 @@ namespace PrototipConfidanceBuilder.DataAccess
         public DbSet<Stare> Stari { get; set; }
         public DbSet<Utilizator> Utilizatori { get; set; }
         public DbSet<RutinaActiune> RutineActiuni { get; set; }
-        public DbSet<GeneratorRutina> GeneratoRutina { get; set; }
+        public DbSet<GeneratorRutina> GeneratorRutina { get; set; }
 
 
         public DatabaseContext() : base(GetConnection(), false)

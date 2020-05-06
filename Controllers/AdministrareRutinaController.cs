@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using PrototipConfidanceBuilder.DataAccess;
-using PrototipConfidanceBuilder.Models;
+using PrototipConfidenceBuilder.DataAccess;
+using PrototipConfidenceBuilder.Models;
 
-namespace PrototipConfidanceBuilder.Controllers
+namespace PrototipConfidenceBuilder.Controllers
 {
     public class AdministrareRutinaController : Controller
     {
@@ -16,7 +16,7 @@ namespace PrototipConfidanceBuilder.Controllers
             int IdUtilizator = Utils.UtilizatorLogat();
             using (var db = new DatabaseContext())
             {
-                List<GeneratorRutina> LGR = db.GeneratoRutina.Where(x => x.IdUtilizator == IdUtilizator).ToList();
+                List<GeneratorRutina> LGR = db.GeneratorRutina.Where(x => x.IdUtilizator == IdUtilizator).ToList();
                 ViewModelAdminGeneratorRutine vm = new ViewModelAdminGeneratorRutine(LGR, IdUtilizator);
 
                 return View("Index",vm);
@@ -32,7 +32,7 @@ namespace PrototipConfidanceBuilder.Controllers
                 using (var db = new DatabaseContext())
                 {
 
-                    GeneratorRutina generatorRutina = db.GeneratoRutina.First(x => x.Id == idGRA);
+                    GeneratorRutina generatorRutina = db.GeneratorRutina.First(x => x.Id == idGRA);
                     generatorRutina.Activ = stare;
                     db.SaveChanges();
 
@@ -67,7 +67,7 @@ namespace PrototipConfidanceBuilder.Controllers
                     generatorRutina.IdUtilizator = IdUtilizator;
                     generatorRutina.TotalAc = 0;
                     generatorRutina.Activ = 1;
-                    db.GeneratoRutina.Add(generatorRutina);
+                    db.GeneratorRutina.Add(generatorRutina);
                     db.SaveChanges();
 
                     return RedirectToAction("Index");

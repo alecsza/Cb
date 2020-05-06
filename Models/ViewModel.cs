@@ -1,11 +1,11 @@
-﻿using PrototipConfidanceBuilder.DataAccess;
+﻿using PrototipConfidenceBuilder.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web;
 
-namespace PrototipConfidanceBuilder.Models
+namespace PrototipConfidenceBuilder.Models
 {
 
     public class ViewModelConfigRutina
@@ -358,7 +358,7 @@ namespace PrototipConfidanceBuilder.Models
 
             using (var context = new DatabaseContext())
             {
-                var genrut = context.GeneratoRutina.Where(x => x.IdUtilizator == 1);
+                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == 1);
                 ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr);
                 while (prr == null)
                 {
