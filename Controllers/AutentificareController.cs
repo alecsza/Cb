@@ -28,6 +28,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 if(Util!= null)
                 {
                     System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
+                    Utils.ActualizareRutineLaZi(db);
                     return RedirectToAction("Index", "Home");
                 }
                 else

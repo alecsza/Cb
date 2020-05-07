@@ -377,16 +377,15 @@ namespace PrototipConfidenceBuilder.Models
             return idUtilizator;
         }
 
-        public static void ActualizareRutineLaZi()
+        public static void ActualizareRutineLaZi(DatabaseContext context)
         {
             DateTime dataActualizare = DateTime.Now.Date;
             string dataStr = dataActualizare.ToString("yyyy-MM-dd");
 
-            using (var context = new DatabaseContext())
-            {
+          
                 int idUtilLogat = Utils.UtilizatorLogat();
                 var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat);
-                ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr);
+                ParcursRutina prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == dataStr && x.Rutina.IdUtilizator == idUtilLogat);
                 while (prr == null)
                 {
 
@@ -413,11 +412,11 @@ namespace PrototipConfidenceBuilder.Models
                     context.ParcursRutina.Add(pa);
 
                     strData = dataActualizare.AddDays(-1).Date.ToString("yyyy-MM-dd");
-                     prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == strData);
+                     prr = context.ParcursRutina.FirstOrDefault(x =>x.Data.Trim() == strData  && x.Rutina.IdUtilizator == idUtilLogat);
 
                     context.SaveChanges();
 
-                }
+                
             }
         }
 

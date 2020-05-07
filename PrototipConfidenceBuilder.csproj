@@ -38,7 +38,9 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1799,6 +1801,8 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Models\x64\SQLite.Interop.dll" />
+    <Content Include="Models\x86\SQLite.Interop.dll" />
     <Content Include="Models\SQlLight\sqlite3.def" />
     <Content Include="Models\SQlLight\sqlite3.dll" />
     <Content Include="Scripts\bootstrap-datetimepicker.js" />
