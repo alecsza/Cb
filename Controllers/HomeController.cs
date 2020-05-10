@@ -12,43 +12,86 @@ namespace PrototipConfidenceBuilder.Controllers
 
     public class HomeController : Controller
     {
-       
+        DatabaseContext db = new DatabaseContext();
+
         public ActionResult Index()
         {
-            using (var context = new DatabaseContext())
-            {
+           
                 int IdUtil = Utils.UtilizatorLogat();
                 if(IdUtil == 0)
                 {
                     return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
                 }
-                Utilizator util = context.Utilizatori.First(x => x.Id == IdUtil);
+                Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
                 //Get all the calculations again from the db (our new Calculation should be there)
                 DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, context);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
                 return View(vmi);
 
+            
+
+        }
+        public ActionResult PartialIndex()
+        {
+
+            int IdUtil = Utils.UtilizatorLogat();
+            if (IdUtil == 0)
+            {
+                return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
             }
+            Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+
+            //Get all the calculations again from the db (our new Calculation should be there)
+            DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            return PartialView("_MainContent", vmi);
+
+
 
         }
 
         public ActionResult Inapoi()
         {
-            DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
+            DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
            
-            Session["dataDeRef"] = ddr.AddDays(-7);
+            Session["dataDeRef"] = ddr1.AddDays(-7);
 
-            return RedirectToAction("Index");
+            // return RedirectToAction("Index");
+
+            int IdUtil = Utils.UtilizatorLogat();
+            if (IdUtil == 0)
+            {
+                return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+            }
+            Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+
+            //Get all the calculations again from the db (our new Calculation should be there)
+            DateTime ddr = ddr1.AddDays(-7);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            return PartialView("_MainContent",vmi);
         }
 
         public ActionResult Inainte()
         {
-            DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
+            DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
             
-            Session["dataDeRef"] = ddr.AddDays(7);
+            Session["dataDeRef"] = ddr1.AddDays(7);
 
-            return RedirectToAction("Index");
+            //return RedirectToAction("Index");
+
+
+            int IdUtil = Utils.UtilizatorLogat();
+            if (IdUtil == 0)
+            {
+                return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+            }
+            Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+
+            //Get all the calculations again from the db (our new Calculation should be there)
+            DateTime ddr = ddr1.AddDays(7);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            return PartialView("_MainContent", vmi);
         }
 
 
@@ -58,8 +101,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             DateTime date = DateTime.Now;
             
-            using (var context = new DatabaseContext())
-            {
+           
 
 
                 int IdUtil = Utils.UtilizatorLogat();
@@ -67,13 +109,13 @@ namespace PrototipConfidenceBuilder.Controllers
                 {
                     return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
                 }
-                Utilizator util = context.Utilizatori.First(x => x.Id == IdUtil);
+                Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
-                var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == IdUtil);
+                var genrut = db.GeneratorRutina.Where(x => x.IdUtilizator == IdUtil);
 
                 if (genrut.Count() < 1)
                 {
-                    return RedirectToAction("Index", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o acțiune în rutină" });
+                    return RedirectToAction("PartialIndex", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o acțiune în rutină" });
                 }
 
                 for (int i = 0; i < 60; i++)
@@ -81,20 +123,20 @@ namespace PrototipConfidenceBuilder.Controllers
                     DateTime   data = date.AddDays(-i);
                     string strData = data.ToString("yyyy-MM-dd");
                     Rutina rut = new Rutina();
-                    ParcursRutina pr = context.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == util.Id).FirstOrDefault(x => x.Data == strData);
+                    ParcursRutina pr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == util.Id).FirstOrDefault(x => x.Data == strData);
                     if (pr != null)
                     {
                         rut = pr.Rutina;
-                        var ras = context.RutineActiuni.Where(x => x.IdRutina == rut.Id).ToList();
+                        var ras = db.RutineActiuni.Where(x => x.IdRutina == rut.Id).ToList();
                         foreach (var ra in ras)
                         {
-                            context.RutineActiuni.Remove(ra);
+                            db.RutineActiuni.Remove(ra);
                         }
                     }
                     else
                     {
                         rut.IdUtilizator = util.Id;
-                        context.Rutine.Add(rut);
+                        db.Rutine.Add(rut);
                     }
 
                     foreach (var item in genrut)
@@ -104,25 +146,25 @@ namespace PrototipConfidenceBuilder.Controllers
                         ra.IdRutina = rut.Id;
                         ra.IdStare = 1;
                         ra.ActiuniCumulate = 0;
-                        context.RutineActiuni.Add(ra);
+                        db.RutineActiuni.Add(ra);
 
                     }
                     ParcursRutina pa = new ParcursRutina();
                     pa.IdRutina = rut.Id;
                     pa.Data = strData;
-                    context.ParcursRutina.Add(pa);
+                    db.ParcursRutina.Add(pa);
 
-                    context.SaveChanges();
+                    db.SaveChanges();
                     
                 }
-                return RedirectToAction("Index");
-            }
-         }
+            ViewModelIndex vmi = new ViewModelIndex(util, date.AddDays(-6), date, db);
+            return PartialView("_MainContent", vmi);
+
+        }
 
         public ActionResult SchimbaStareActiune(int IdRutinaActiune, int stare)
         {
-            using( var db =  new DatabaseContext())
-            {
+           
                 try
                    {
                     int IdUtil = Utils.UtilizatorLogat();
@@ -139,10 +181,8 @@ namespace PrototipConfidenceBuilder.Controllers
                     return Json(new { mesaj = "a aparut o eroare" }, JsonRequestBehavior.AllowGet);
                 }
 
-                return Json(new { mesaj = "salvat" }, JsonRequestBehavior.AllowGet);
+                return Json(new { mesaj = "Starea acțiunii a fost modificată cu succes" }, JsonRequestBehavior.AllowGet);
             }
-        }
-
-
+        
     }
 }

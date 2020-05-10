@@ -11,6 +11,7 @@ namespace PrototipConfidenceBuilder.Controllers
     public class AutentificareController : Controller
     {
         // GET: Autentificare
+        DatabaseContext db = new DatabaseContext();
         public ActionResult Index(string mesaj="")
         {
 
@@ -19,8 +20,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult Logare(string util, string parola)
         {
-            using(DatabaseContext db = new DatabaseContext())
-            {
+            
                 List<Utilizator> Utilizatori = db.Utilizatori.ToList();
 
                 Utilizator Util = Utilizatori.FirstOrDefault(x => x.Nume == util && x.Parola == parola);
@@ -36,13 +36,12 @@ namespace PrototipConfidenceBuilder.Controllers
                    string mesaj = "Utilizatorul sau parola sunt incorecte";
                    return RedirectToAction("Index","Autentificare", new { mesaj });
                 }
-            }
+            
         }
 
         public ActionResult Inregistrare(string util, string parola)
         {
-            using (DatabaseContext db = new DatabaseContext())
-            {
+           
                 List<Utilizator> Utilizatori = db.Utilizatori.ToList();
 
                 Utilizator Util = Utilizatori.FirstOrDefault(x => x.Nume == util );
@@ -63,7 +62,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
                     return RedirectToAction("Index", "AdministrareRutina", new { mesaj });
                 }
-            }
+            
         }
     }
 }

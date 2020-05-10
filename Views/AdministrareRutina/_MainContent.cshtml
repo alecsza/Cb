@@ -1,0 +1,53 @@
+﻿@model PrototipConfidenceBuilder.Models.ViewModelAdminGeneratorRutine
+
+
+
+
+            @Html.Partial("~/Views/_TopHeader.cshtml", Model.UP)
+
+            <h3 class="text-center text-success">@Model.Mesaj</h3>
+            <div class="row justify-content-center">
+
+                <div class="col-xl-10 col-lg-12 col-md-9">
+
+                    <div class="card o-hidden border-0 shadow-lg my-5">
+                        <div class="card-body p-0">
+                            <!-- Nested Row within Card Body -->
+                            <div class="justify-content-center row">
+
+                                <div class="p-5 justify-content-center">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Rutină zilnică</h1>
+                                    </div>
+                                    @foreach (var item in Model.ListaActiune)
+                                    {
+                                        <div class="form-group justify-content-center">
+                                            <div class="custom-control custom-checkbox ">
+                                                <input type="checkbox" @(item.StareActiune == 1 ? "checked" : "") class="checkRA" data-url=@Url.Action("SchimbaStare","AdministrareRutina",new { idGRA = item.IdGeneratoractiune})>
+                                                <label>@item.DenumireActiune</label>
+                                            </div>
+                                        </div>
+                                    }
+
+
+                                    <div class="card border-bottom-primary ">
+                                        <div class="card-body">
+                                            <input class="form-control" data-url=@Url.Action("AdaugaActiune","AdministrareRutina") placeholder="acțiune nouă" style="margin-bottom:10px;" id="creareGA" />
+                                            <p class="small">Apăsați tasta "Enter"</p>
+
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+   

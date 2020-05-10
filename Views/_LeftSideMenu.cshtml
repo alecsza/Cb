@@ -17,7 +17,7 @@
 
 
         <li class="nav-item ">
-            <a class="nav-link" href=@Url.Action("Index", "Home")>
+            <a class="nav-link mainContent pointer" data-url=@Url.Action("PartialIndex", "Home")>
                 <i class="fas fa-fw fa-table"></i>
                 <span>Pagina principală</span>
             </a>
@@ -25,25 +25,20 @@
 
 
         <li class="nav-item ">
-            <a class="nav-link" href=@Url.Action("Index", "Statistici")>
+            <a class="nav-link mainContent pointer" data-url=@Url.Action("Index", "Statistici")>
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Statistici</span>
             </a>
         </li>
 
         <li class="nav-item ">
-            <a class="nav-link" href=@Url.Action("Index","AdministrareRutina")>
+            <a class="nav-link mainContent pointer" data-url=@Url.Action("PartialIndex","AdministrareRutina")>
                 <i class="fas fa-fw fa-wrench"></i>
                 <span>Administrare rutina</span>
             </a>
         </li>
 
 
-
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-
-  
         <!-- Heading -->
         <div class="sidebar-heading">
             Autentificare

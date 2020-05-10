@@ -1,6 +1,4 @@
-﻿
-
-//$(document).ready(function () {
+﻿//$(document).ready(function () {
     // This WILL work because we are listening on the 'document', 
     // for a click on an element with an ID of #test-element
     $(document).on("click", ".btnModal", function () {
@@ -11,6 +9,11 @@
         $('#MModal').modal('show');
     });
 
+
+//$('#loader').modal({
+//    backdrop: 'static',
+//    keyboard: false
+//});
 
 $(document).on("click", ".cr", function () {
 
@@ -180,14 +183,14 @@ function clearCanvas() {
 }
 
 
-$(document).on("click", ".perioada", function () {
+//$(document).on("click", ".perioada", function () {
 
-    var url = $(this).attr('data-url');
-    window.location.href =url;
-   // $('.modal-content').load(url);
+//    var url = $(this).attr('data-url');
+//    window.location.href =url;
+//   // $('.modal-content').load(url);
 
   
-});
+//});
 
 
 //gen rutine admin
@@ -230,9 +233,20 @@ $(document).on("change", "#creareGA", function () {
     var urlPartial = $(this).attr('data-url');
     var url = urlPartial + '?denumire=' + encod_den;
 
-    window.location.href = url;
+    $('#content').load(url);
    // window.open(url);
     // $('.modal-content').load(url);
 
+
+});
+
+
+
+//PAGINA PRINCIPALA 
+
+$(document).on("click", ".mainContent", function () {
+
+    var url = $(this).attr('data-url');
+    $('#content').load(url);
 
 });

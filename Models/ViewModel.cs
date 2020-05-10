@@ -1,4 +1,4 @@
-﻿using PrototipConfidenceBuilder.DataAccess;
+﻿ using PrototipConfidenceBuilder.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,7 +15,7 @@ namespace PrototipConfidenceBuilder.Models
         public int IdParcursRutina { get; set; }
         public List<StatusRA> ListaRutinaActiuni { get; set; }
 
-        public ViewModelConfigRutina(List<RutinaActiune> lra,Utilizator util, int idParcursRutina)
+        public ViewModelConfigRutina(HashSet<Zi> lra,Utilizator util, int idParcursRutina)
         {
             UP = new UtilizatorSiPagina(util, "Instoric Rutină");
             IdParcursRutina = idParcursRutina;
@@ -23,7 +23,7 @@ namespace PrototipConfidenceBuilder.Models
 
             foreach(var item in lra)
             {
-                StatusRA sra = new StatusRA(item.Id, item.IdStare, item.IdRutina, item.Actiune.Denumire);
+                StatusRA sra = new StatusRA(item);
                 ListaRutinaActiuni.Add(sra);
             }
         }
@@ -37,12 +37,12 @@ namespace PrototipConfidenceBuilder.Models
         public int IdRutina { get; set; }
         public string DenumireActiune { get; set; }
 
-        public StatusRA(int idRa, int idSts, int idR, string denAct)
+        public StatusRA(Zi zi)
         {
-            IdRutina = idR;
-            IdRA = idRa;
-            IdStatusActiune = idSts;
-            DenumireActiune = denAct;
+            IdRutina = zi.IdRutina;
+            IdRA = zi.IdRutinaActiune;
+            IdStatusActiune = (int)zi.IdStare;
+            DenumireActiune = zi.DenStare;
 
         }
     }
@@ -56,7 +56,7 @@ namespace PrototipConfidenceBuilder.Models
         public List<Tuple<int,string,DateTime>> ListaIdSiDataRutina { get; set; }
         public List<ActiunePeZile> Status7Z { get; set; }
 
-       public ViewModelIndex(Utilizator util, DateTime StartDate, DateTime StopDate, DatabaseContext db)
+       public ViewModelIndex(Utilizator util, DateTime StartDate, DateTime StopDate, HashSet<Zi> ListaRA)
         {
             DataStart = StartDate;
             DataStop = StopDate;
@@ -64,35 +64,24 @@ namespace PrototipConfidenceBuilder.Models
 
             double NrZile = Math.Abs( (DataStart.Date - DataStop.Date).TotalDays) ; // perfect
 
-            var ListaParcursRutina = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator==util.Id).ToList();
-
-
             ListaIdSiDataRutina = new List<Tuple<int, string, DateTime>>();
-            List<Tuple<ParcursRutina, RutinaActiune>> RutineEligibile = new List<Tuple<ParcursRutina, RutinaActiune>>();
+            List<Zi> Actiunieligibile = ListaRA.Where(x=>x.DataD>= StartDate.Date && x.DataD<= StopDate.Date).ToList();
             Status7Z = new List<ActiunePeZile>();
 
             for (int i = 0; i <= NrZile; i++)
             {
                 DateTime data = StartDate.AddDays(i).Date;
-
-                var pr = ListaParcursRutina.FirstOrDefault(x => DateTime.ParseExact(x.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date == data);
-                
-                if (pr !=null)
-                {
-                    var listaActiuni = pr.Rutina.RutinaActiune.Select(y => new Tuple<ParcursRutina, RutinaActiune>(pr, y)).ToList();
-                    RutineEligibile.AddRange(listaActiuni);
-                    
-                }
+                int? idRutina = Actiunieligibile.FirstOrDefault(x => x.DataD == data).IdRutina;
                 string strdata = $"{data.Month}/{data.Day}";
-                ListaIdSiDataRutina.Add(new Tuple<int, string,DateTime>(pr==null?0:pr.IdRutina, strdata,data));
+                ListaIdSiDataRutina.Add(new Tuple<int, string,DateTime>(idRutina == null?0:(int)idRutina, strdata,data));
             }
            
-            List<int> ListaActiuni = RutineEligibile.Select(x => x.Item2.IdActiune).Distinct().ToList();
+            List<int> ListaActiuni = Actiunieligibile.Select(x => x.IdActiune).Distinct().ToList();
            
             foreach (int id in ListaActiuni)
             {
-                var actiunePeZile = RutineEligibile.Where(x => x.Item2.IdActiune == id).ToList();
-                Status7Z.Add(new ActiunePeZile(actiunePeZile, StartDate,(int)NrZile));
+                var actiunePeZile = Actiunieligibile.Where(x => x.IdActiune == id).ToList();
+                Status7Z.Add(new ActiunePeZile(actiunePeZile, actiunePeZile.First().DenActiune, id));
             }
 
         }
@@ -119,36 +108,39 @@ namespace PrototipConfidenceBuilder.Models
 
         public List<Zi> ListaZile { get; set; }
 
-        public ActiunePeZile(List<Tuple<ParcursRutina, RutinaActiune>> listaActiuni, DateTime dataStart,int nrZile)
+        public ActiunePeZile(HashSet<Zi> listaActiuni, DateTime dataStart,int nrZile)
         {
+            
             var act  = listaActiuni.First();
             int lenActiuni = listaActiuni.Count();
-            Id = act.Item2.Id;
-            Denumire = act.Item2.Actiune.Denumire.Trim();
+            Id = act.IdRutinaActiune;
+            Denumire = act.DenActiune;
             ListaZile = new List<Zi>();
 
-                for( int i = 0;  i<=nrZile; i++)
-                {
-                    DateTime data = dataStart.AddDays(i).Date;
-                    var ra = listaActiuni.FirstOrDefault(x => DateTime.ParseExact(x.Item1.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date == data);
-                if (ra != null)
-                {
-                    ListaZile.Add(new Zi(DateTime.ParseExact(ra.Item1.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date, ra.Item2.Id, ra.Item2.IdActiune, ra.Item2.IdStare, ra.Item2.Stare.Denumire, ra.Item2.Actiune.Denumire, ra.Item2.ActiuniCumulate));
+               
+                    DateTime dataStop = dataStart.AddDays(nrZile).Date;
+                    Zi ra = listaActiuni.FirstOrDefault(x => x.DataD >= dataStart);
+               
+                    ListaZile= listaActiuni.Where(x => x.DataD >= dataStart && x.DataD <= dataStop).ToList();
 
-                }
-                else
-                {
-                    ListaZile.Add(new Zi(data.Date));
-                }
 
-                }
-            
+           }
+        public ActiunePeZile(List<Zi> listaActiuni, string denAct , int idAct)
+        {
+            ListaZile = listaActiuni;
+            Id = idAct;
+            Denumire = denAct;
         }
 
-    }
+
+      }
+
+    
 
     public class Zi
     {
+        public int IdRutina { get; set; }
+        public int IdParcursRutina { get; set; }
         public int IdRutinaActiune { get; set; }
 
         public int IdActiune { get; set; }
@@ -157,9 +149,10 @@ namespace PrototipConfidenceBuilder.Models
         public DateTime DataD { get; set; }
         public int? IdStare { get; set; }
         public int ActiuniCumulate { get; set; }
+        public int Idutilizator { get; set; }
         public string DenStare { get; set; }
 
-        public Zi(DateTime data, int idRa,int idAc, int? idStare, string denStare, string denActiune, int? actiuniCumulate)
+        public Zi(DateTime data, int idRa,int idAc, int? idStare, string denStare, string denActiune, int? actiuniCumulate, int idUtilizator, int idRutina, int idParcursRutina)
         {
             DataD = data.Date;
             string zi = data.Day.ToString();
@@ -171,6 +164,7 @@ namespace PrototipConfidenceBuilder.Models
             IdActiune = idAc;
             DenActiune = denActiune;
             ActiuniCumulate = actiuniCumulate == null ? 0 : (int)actiuniCumulate;
+            Idutilizator = idUtilizator;
         }
 
         public Zi(DateTime data)
@@ -180,6 +174,23 @@ namespace PrototipConfidenceBuilder.Models
             Data = $"{luna}/{zi}";
             IdStare = 0;
             DenStare = "Acțiune oprită";
+        }
+        public Zi(RutinaActiune ra)
+        {
+            ParcursRutina pr = ra.Rutina.ParcursRutina.First();
+            IdRutina = ra.IdRutina;
+            IdParcursRutina = pr.Id;
+            DataD = DateTime.ParseExact(pr.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date ;
+            string zi = DataD.Day.ToString();
+            string luna = DataD.Month.ToString();
+            Data = $"{zi}/{luna}";
+            IdStare = ra.IdStare;
+            DenStare = ra.Stare.Denumire;
+            IdRutinaActiune = ra.Id;
+            IdActiune = ra.IdActiune;
+            DenActiune = ra.Actiune.Denumire;
+            ActiuniCumulate = ra.ActiuniCumulate == null ? 0 : (int)ra.ActiuniCumulate;
+            Idutilizator = ra.Rutina.IdUtilizator;
         }
     }
 
@@ -192,13 +203,11 @@ namespace PrototipConfidenceBuilder.Models
 
             ListaCuActiuniRepartizate = new List<ObiectRepartitie>();
 
-          
                 List<Zi> zile = ListaZile.Where(x => x.IdActiune == idActiune).ToList();
                 string denumireActiune = zile.First().DenActiune;
               
                 ListaCuActiuniRepartizate.Add(Utils.RepartitieActiunePeZile(zile,listaDate));
             
-
         }
     }
     public class ActiuneSiProcent
@@ -419,8 +428,6 @@ namespace PrototipConfidenceBuilder.Models
                 
             }
         }
-
-        
 
     }
 }
