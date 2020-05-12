@@ -14,22 +14,20 @@ namespace PrototipConfidenceBuilder.Controllers
         DatabaseContext db = new DatabaseContext();
         public ActionResult Index(string mesaj="")
         {
-
             return View("Index", (object)mesaj);
         }
 
         public ActionResult Logare(string util, string parola)
         {
-            
                 List<Utilizator> Utilizatori = db.Utilizatori.ToList();
 
                 Utilizator Util = Utilizatori.FirstOrDefault(x => x.Nume == util && x.Parola == parola);
 
                 if(Util!= null)
                 {
-                    System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
-                    Utils.ActualizareRutineLaZi(db);
-                    return RedirectToAction("Index", "Home");
+              System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
+                   Utils.ActualizareRutineLaZi(db);
+                return RedirectToAction("Index", "Home");
                 }
                 else
                 {

@@ -30,7 +30,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 //Get all the calculations again from the db (our new Calculation should be there)
 
-                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-pasZile), ddr, db);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-pasZile), ddr, MemoryDB.Zile);
                 var listaZile = vmi.Status7Z.Select(x => x.ListaZile).SelectMany(x=>x).ToList();
                 var listaDate = vmi.ListaIdSiDataRutina.Select(x => x.Item3).ToList();
                ProgresPeActiunePeZile progresActiunePeZile = new ProgresPeActiunePeZile(listaZile, listaDate, idActiune);
@@ -60,10 +60,42 @@ namespace PrototipConfidenceBuilder.Controllers
                 }
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
                 ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == panaLaData && x.Rutina.IdUtilizator == util.Id);
-                ProgresActiuni pa = new ProgresActiuni(pr,panaLaData.AddDays(-pasZile ),util,db);
+                ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile ),util,MemoryDB.Zile);
                 return PartialView("_MainContent", pa);
 
 
+
+        }
+
+        public ActionResult PartialIndex()
+        {
+
+            DateTime panaLaData = DateTime.Now;
+            int pasZile = (int)HttpContext.Session["pasZile"];
+            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+
+            int IdUtil = Utils.UtilizatorLogat();
+            if (IdUtil == 0)
+            {
+                return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
+            }
+            Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
+
+            if (util.UltimParcursRutina == null)
+            {
+                ParcursRutina u_pr = null;
+                List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
+                if (lpr.Count() > 0)
+                {
+                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+
+                }
+                util.UltimParcursRutina = u_pr;
+                db.SaveChanges();
+            }
+            ParcursRutina pr = util.UltimParcursRutina;
+            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile), util, MemoryDB.Zile);
+            return PartialView("_MainContent", pa);
 
         }
 
@@ -94,11 +126,8 @@ namespace PrototipConfidenceBuilder.Controllers
                     db.SaveChanges();
                 }
                 ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-pasZile ),util, db);
-                return PartialView("_MainContent", pa);
-
-            
-
+            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile ),util, MemoryDB.Zile);
+                return View("Index", pa);
 
         }
 
@@ -130,7 +159,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     db.SaveChanges();
                 }
                 ParcursRutina pr = util.UltimParcursRutina;
-                ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-actualizare), util, db);
+                ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
                 return PartialView("_MainContent", pa);
 
 
@@ -161,7 +190,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-actualizare), util, db);
+            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
             return PartialView("_MainContent", pa);
 
 
@@ -192,7 +221,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-actualizare), util, db);
+            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
             return PartialView("_MainContent", pa);
 
 
@@ -224,7 +253,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-actualizare), util, db);
+            ProgresActiuni pa = new ProgresActiuni( panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
             return PartialView("_MainContent", pa);
 
 
@@ -255,7 +284,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(pr, panaLaData.AddDays(-nrTotalZile), util, db);
+            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-nrTotalZile), util, MemoryDB.Zile);
             return PartialView("_MainContent", pa); ;
 
 

@@ -13,7 +13,6 @@ namespace PrototipConfidenceBuilder.Controllers
     public class HomeController : Controller
     {
         DatabaseContext db = new DatabaseContext();
-
         public ActionResult Index()
         {
            
@@ -26,7 +25,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 //Get all the calculations again from the db (our new Calculation should be there)
                 DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
                 return View(vmi);
 
             
@@ -44,7 +43,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr,MemoryDB.Zile);
             return PartialView("_MainContent", vmi);
 
 
@@ -68,7 +67,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = ddr1.AddDays(-7);
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
             return PartialView("_MainContent",vmi);
         }
 
@@ -90,7 +89,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = ddr1.AddDays(7);
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, db);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
             return PartialView("_MainContent", vmi);
         }
 
@@ -100,11 +99,11 @@ namespace PrototipConfidenceBuilder.Controllers
 
 
             DateTime date = DateTime.Now;
-            
-           
 
 
-                int IdUtil = Utils.UtilizatorLogat();
+            Stare st = db.Stari.First(x => x.Id == 1);
+
+            int IdUtil = Utils.UtilizatorLogat();
                 if (IdUtil == 0)
                 {
                     return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
@@ -138,26 +137,34 @@ namespace PrototipConfidenceBuilder.Controllers
                         rut.IdUtilizator = util.Id;
                         db.Rutine.Add(rut);
                     }
-
-                    foreach (var item in genrut)
+                ParcursRutina pa = new ParcursRutina();
+                pa.IdRutina = rut.Id;
+                pa.Data = strData;
+                db.ParcursRutina.Add(pa);
+            
+                foreach (var item in genrut)
                     {
                         RutinaActiune ra = new RutinaActiune();
                         ra.IdActiune = item.IdActiune;
                         ra.IdRutina = rut.Id;
                         ra.IdStare = 1;
+                        ra.Stare = st;
+                        ra.Rutina = rut;
+                        ra.Actiune = item.Actiune;
                         ra.ActiuniCumulate = 0;
                         db.RutineActiuni.Add(ra);
+                        db.SaveChanges();
+                        MemoryDB.Zile.Add(new Zi(ra));
 
                     }
-                    ParcursRutina pa = new ParcursRutina();
-                    pa.IdRutina = rut.Id;
-                    pa.Data = strData;
-                    db.ParcursRutina.Add(pa);
+                  
 
-                    db.SaveChanges();
                     
                 }
-            ViewModelIndex vmi = new ViewModelIndex(util, date.AddDays(-6), date, db);
+            var zile = MemoryDB.Zile;
+           
+            ViewModelIndex vmi = new ViewModelIndex(util, date.AddDays(-6), date, zile);
+
             return PartialView("_MainContent", vmi);
 
         }
@@ -167,12 +174,7 @@ namespace PrototipConfidenceBuilder.Controllers
            
                 try
                    {
-                    int IdUtil = Utils.UtilizatorLogat();
-                    RutinaActiune ra = db.RutineActiuni.First(x => x.Id == IdRutinaActiune);
-                    ra.IdStare = stare;
-                    db.SaveChanges();
-                    DateTime data = DateTime.ParseExact(ra.Rutina.ParcursRutina.First().Data.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    Utils.ActualizareActiuniAcumulate(data, db, ra.IdActiune, IdUtil);
+                  Utils.ActualizareActiuniAcumulate(db, stare, IdRutinaActiune);
                     
                     }
 

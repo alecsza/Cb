@@ -10,16 +10,13 @@ namespace PrototipConfidenceBuilder.Models
     public static class MemoryDB
     {
         public static  HashSet<Zi> Zile { get; set; }
-
-        public static int IdUtilizator { get; set; }
         
-        public static void  ActualizareMemoryDB(int idUtilizator, DatabaseContext db)
+        public static void  ActualizareMemoryDB( DatabaseContext db)
         {
             List<RutinaActiune> LRA = new List<RutinaActiune>();
-            LRA = db.RutineActiuni.Where(x => x.Rutina.IdUtilizator == idUtilizator).ToList();
+            LRA = db.RutineActiuni.ToList();
 
             MemoryDB.Zile =    new HashSet<Zi> (LRA.Select(x => new Zi(x)));
-            MemoryDB.IdUtilizator = IdUtilizator;
         }
     }
 }
