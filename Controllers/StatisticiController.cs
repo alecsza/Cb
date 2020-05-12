@@ -50,7 +50,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult ProcentrealizatDinRutina()
         {
-            DateTime panaLaData = DateTime.Now;
+            DateTime dinData = DateTime.Now;
             int pasZile = (int)HttpContext.Session["pasZile"];
            
                 int IdUtil = Utils.UtilizatorLogat();
@@ -59,8 +59,9 @@ namespace PrototipConfidenceBuilder.Controllers
                     return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
                 }
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
-                ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == panaLaData && x.Rutina.IdUtilizator == util.Id);
-                ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile ),util,MemoryDB.Zile);
+                List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+                ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == dinData && x.Rutina.IdUtilizator == util.Id);
+                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util,MemoryDB.Zile, lgr);
                 return PartialView("_MainContent", pa);
 
 
@@ -70,9 +71,9 @@ namespace PrototipConfidenceBuilder.Controllers
         public ActionResult PartialIndex()
         {
 
-            DateTime panaLaData = DateTime.Now;
+            DateTime dinData = DateTime.Now;
             int pasZile = (int)HttpContext.Session["pasZile"];
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
             int IdUtil = Utils.UtilizatorLogat();
             if (IdUtil == 0)
@@ -87,14 +88,16 @@ namespace PrototipConfidenceBuilder.Controllers
                 List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                 if (lpr.Count() > 0)
                 {
-                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                    u_pr = lpr.First(x => x.Data == dinDataStr);
 
                 }
                 util.UltimParcursRutina = u_pr;
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile), util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile), util, MemoryDB.Zile, lgr);
             return PartialView("_MainContent", pa);
 
         }
@@ -102,9 +105,9 @@ namespace PrototipConfidenceBuilder.Controllers
         public ActionResult Index()
         {
 
-            DateTime panaLaData = DateTime.Now;
+            DateTime dinData = DateTime.Now;
             int pasZile = (int)HttpContext.Session["pasZile"];
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
             
                 int IdUtil = Utils.UtilizatorLogat();
                 if (IdUtil == 0)
@@ -119,14 +122,16 @@ namespace PrototipConfidenceBuilder.Controllers
                     List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                     if (lpr.Count() > 0)
                     {
-                        u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                        u_pr = lpr.First(x => x.Data == dinDataStr);
 
                     }
                     util.UltimParcursRutina = u_pr;
                     db.SaveChanges();
                 }
                 ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-pasZile ),util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util, MemoryDB.Zile, lgr);
                 return View("Index", pa);
 
         }
@@ -141,8 +146,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 int actualizare = nrTotalZile > 6 ? 6 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
 
-                DateTime panaLaData = DateTime.Now;
-                string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+                DateTime dinData = DateTime.Now;
+                string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -152,14 +157,16 @@ namespace PrototipConfidenceBuilder.Controllers
                     List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                     if (lpr.Count() > 0)
                     {
-                        u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                        u_pr = lpr.First(x => x.Data == dinDataStr);
 
                     }
                     util.UltimParcursRutina = u_pr;
                     db.SaveChanges();
                 }
                 ParcursRutina pr = util.UltimParcursRutina;
-                ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
+
+                List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
                 return PartialView("_MainContent", pa);
 
 
@@ -172,8 +179,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 int nrTotalZile = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
-            DateTime panaLaData = DateTime.Now;
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            DateTime dinData = DateTime.Now;
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -183,14 +190,16 @@ namespace PrototipConfidenceBuilder.Controllers
                 List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                 if (lpr.Count() > 0)
                 {
-                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                    u_pr = lpr.First(x => x.Data == dinDataStr);
 
                 }
                 util.UltimParcursRutina = u_pr;
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -203,8 +212,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
-            DateTime panaLaData = DateTime.Now;
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            DateTime dinData = DateTime.Now;
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -214,14 +223,16 @@ namespace PrototipConfidenceBuilder.Controllers
                 List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                 if (lpr.Count() > 0)
                 {
-                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                    u_pr = lpr.First(x => x.Data == dinDataStr);
 
                 }
                 util.UltimParcursRutina = u_pr;
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -235,8 +246,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
                 System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
-            DateTime panaLaData = DateTime.Now;
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            DateTime dinData = DateTime.Now;
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -246,14 +257,16 @@ namespace PrototipConfidenceBuilder.Controllers
                 List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                 if (lpr.Count() > 0)
                 {
-                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                    u_pr = lpr.First(x => x.Data == dinDataStr);
 
                 }
                 util.UltimParcursRutina = u_pr;
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni( panaLaData.AddDays(-actualizare), util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni( dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -266,8 +279,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 int IdUtil = Utils.UtilizatorLogat();
                 int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
                 System.Web.HttpContext.Current.Session["pasZile"] = nrTotalZile;
-            DateTime panaLaData = DateTime.Now;
-            string panaLaDataStr = panaLaData.ToString("yyyy-MM-dd");
+            DateTime dinData = DateTime.Now;
+            string dinDataStr = dinData.ToString("yyyy-MM-dd");
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -277,14 +290,16 @@ namespace PrototipConfidenceBuilder.Controllers
                 List<ParcursRutina> lpr = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == util.Id).ToList();
                 if (lpr.Count() > 0)
                 {
-                    u_pr = lpr.First(x => x.Data == panaLaDataStr);
+                    u_pr = lpr.First(x => x.Data == dinDataStr);
 
                 }
                 util.UltimParcursRutina = u_pr;
                 db.SaveChanges();
             }
             ParcursRutina pr = util.UltimParcursRutina;
-            ProgresActiuni pa = new ProgresActiuni(panaLaData.AddDays(-nrTotalZile), util, MemoryDB.Zile);
+
+            List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-nrTotalZile), util, MemoryDB.Zile,lgr);
             return PartialView("_MainContent", pa); ;
 
 

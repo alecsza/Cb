@@ -58,7 +58,6 @@ namespace PrototipConfidenceBuilder.Controllers
             try
             {
               
-
                     GeneratorRutina generatorRutina = db.GeneratorRutina.First(x => x.Id == idGRA);
                     generatorRutina.Activ = stare;
                     db.SaveChanges();

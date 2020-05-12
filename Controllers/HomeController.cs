@@ -141,6 +141,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 pa.IdRutina = rut.Id;
                 pa.Data = strData;
                 db.ParcursRutina.Add(pa);
+                db.SaveChanges();
             
                 foreach (var item in genrut)
                     {
@@ -183,7 +184,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     return Json(new { mesaj = "a aparut o eroare" }, JsonRequestBehavior.AllowGet);
                 }
 
-                return Json(new { mesaj = "Starea acțiunii a fost modificată cu succes" }, JsonRequestBehavior.AllowGet);
+                return Json(new { mesaj = "Starea acțiunii a fost modoficată cu succes" }, JsonRequestBehavior.AllowGet);
             }
         
     }

@@ -256,7 +256,7 @@ namespace PrototipConfidenceBuilder.Models
         public UtilizatorSiPagina UP { get; set; }
         public List<ActiuneSiProcent> ProgresAct { get; set; }
 
-        public ProgresActiuni(DateTime dataStart,Utilizator util, HashSet<Zi> ra)
+        public ProgresActiuni(DateTime dataStart,Utilizator util, HashSet<Zi> ra, List<GeneratorRutina> lgr)
         {
             StartDate = dataStart.ToString("dd-MM-yyyy");
             StopDate = DateTime.Now.ToString("dd-MM-yyyy");
@@ -264,18 +264,18 @@ namespace PrototipConfidenceBuilder.Models
 
             List<Zi> listRaEligibile = ra.Where(x=>x.DataD >= dataStart.Date && x.Idutilizator == util.Id).ToList();
 
-            List<Zi> listIdActiuni = listRaEligibile.Where(x => x.DataD == dataStart.Date).ToList();  
+            
             ProgresAct = new List<ActiuneSiProcent>();
-            if (listIdActiuni.Count()>0 )
+            if (lgr.Count()>0 )
             {
-                foreach (var act in listIdActiuni)
+                foreach (var act in lgr)
                 {
                     var parcursActiuni = listRaEligibile.Where(x => x.IdActiune == act.IdActiune);
                     int ziletrecute = parcursActiuni.Count();
                     var acd = parcursActiuni.Where(x=>x.IdStare == 2);
                     int ac = acd.Count();
                     decimal procent = Utils.ProcentRealizatActiune(ziletrecute, ac);
-                    ActiuneSiProcent asp = new ActiuneSiProcent(procent, act.IdActiune, act.DenActiune);
+                    ActiuneSiProcent asp = new ActiuneSiProcent(procent, act.IdActiune, act.Actiune.Denumire);
 
                     ProgresAct.Add(asp);
                 }
