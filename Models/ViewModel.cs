@@ -282,11 +282,7 @@ namespace PrototipConfidenceBuilder.Models
             }
         }
     }
-
  
-
-   
-   
     public class ObiectRepartitie
     {
         public decimal ProcentRealizat { get; set; }
@@ -368,35 +364,21 @@ namespace PrototipConfidenceBuilder.Models
             return idUtilizator;
         }
 
-        public static void ActualizareRutineLaZi(DatabaseContext context)
+        public static ParcursRutina GenRutina(DateTime data, Utilizator util, DatabaseContext context,List<GeneratorRutina> genrut, Stare st)
         {
-            DateTime dataActualizare = DateTime.Now.Date;
-            string dataStr = dataActualizare.ToString("yyyy-MM-dd");
-            int idUtilLogat = Utils.UtilizatorLogat();
-            List<ParcursRutina> prs = context.ParcursRutina.Where(x => x.Rutina.IdUtilizator == idUtilLogat).ToList();
-
-            var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat);
-            if (prs.Count() > 0)
-            {
-                ParcursRutina prr = prs.FirstOrDefault(x => x.Data.Trim() == dataStr && x.Rutina.IdUtilizator == idUtilLogat);
-                Stare st = context.Stari.First(x=>x.Id==1);
-                while (prr == null)
-                {
-
-                    string strData = dataActualizare.ToString("yyyy-MM-dd");
+                string dataStr = data.ToString("yyyy-MM-dd");
+            
                     Rutina rut = new Rutina();
-
-                    rut.IdUtilizator = idUtilLogat;
+                    rut.IdUtilizator = util.Id;
                     context.Rutine.Add(rut);
                     ParcursRutina pa = new ParcursRutina();
                     pa.IdRutina = rut.Id;
-                    pa.Data = strData;
+                    pa.Data = dataStr;
                     context.ParcursRutina.Add(pa);
 
                     foreach (var item in genrut)
                     {
-                        
-                       
+
                         RutinaActiune ra = new RutinaActiune();
                         ra.IdActiune = item.IdActiune;
                         ra.IdRutina = rut.Id;
@@ -410,11 +392,42 @@ namespace PrototipConfidenceBuilder.Models
                         MemoryDB.Zile.Add(new Zi(ra));
 
                     }
-               
-                    strData = dataActualizare.AddDays(-1).Date.ToString("yyyy-MM-dd");
-                    prr = context.ParcursRutina.FirstOrDefault(x => x.Data.Trim() == strData && x.Rutina.IdUtilizator == idUtilLogat);
+                    return pa;
+        }
 
+        public static void GenRutine(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
+        {
+            string dataStr = data.ToString("yyyy-MM-dd");
+            for (int i = 0; i < 53; i++)
+            {
+
+                Utils.GenRutina(data.AddDays(i), util, context, genrut, st);
+           
+            }
+        }
+
+
+
+        public static void ActualizareRutineLaZi(DatabaseContext context)
+        {
+            DateTime dataActualizare = DateTime.Now.Date;
+            int idUtilLogat = Utils.UtilizatorLogat();
+            Utilizator util = context.Utilizatori.First(x => x.Id == idUtilLogat);
+
+            ParcursRutina ultimparcursRutina = util.UltimParcursRutina;
+
+            if (ultimparcursRutina != null) {
+                DateTime dataUltimaParcursRutina = DateTime.ParseExact(ultimparcursRutina.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
+                DateTime dataverificare = dataUltimaParcursRutina.AddDays(1);
+            var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat).ToList();
+                Stare st = context.Stari.First(x=>x.Id==1);
+                while (dataverificare < dataActualizare)
+                {
+                    Utils.GenRutina(dataverificare, util, context, genrut, st);
+                    dataverificare.AddDays(1);
                 }
+               ParcursRutina pa= Utils.GenRutina(dataverificare, util, context, genrut, st);
+                util.UltimParcursRutina = pa;
             }
         }
 

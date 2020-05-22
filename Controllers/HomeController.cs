@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using PrototipConfidenceBuilder.DataAccess;
@@ -28,8 +29,6 @@ namespace PrototipConfidenceBuilder.Controllers
                 ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
                 return View(vmi);
 
-            
-
         }
         public ActionResult PartialIndex()
         {
@@ -45,8 +44,6 @@ namespace PrototipConfidenceBuilder.Controllers
             DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
             ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr,MemoryDB.Zile);
             return PartialView("_MainContent", vmi);
-
-
 
         }
 
@@ -97,8 +94,7 @@ namespace PrototipConfidenceBuilder.Controllers
         public ActionResult GenRutine()
         {
 
-
-            DateTime date = DateTime.Now;
+            DateTime date = DateTime.Now.AddDays(-60);
 
 
             Stare st = db.Stari.First(x => x.Id == 1);
@@ -117,54 +113,28 @@ namespace PrototipConfidenceBuilder.Controllers
                     return RedirectToAction("PartialIndex", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o acțiune în rutină" });
                 }
 
-                for (int i = 0; i < 60; i++)
+                for (int i = 53; i <= 59; i++)
                 {
-                    DateTime   data = date.AddDays(-i);
-                    string strData = data.ToString("yyyy-MM-dd");
-                    Rutina rut = new Rutina();
-                    ParcursRutina pr = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == util.Id).FirstOrDefault(x => x.Data == strData);
-                    if (pr != null)
-                    {
-                        rut = pr.Rutina;
-                        var ras = db.RutineActiuni.Where(x => x.IdRutina == rut.Id).ToList();
-                        foreach (var ra in ras)
-                        {
-                            db.RutineActiuni.Remove(ra);
-                        }
-                    }
-                    else
-                    {
-                        rut.IdUtilizator = util.Id;
-                        db.Rutine.Add(rut);
-                    }
-                ParcursRutina pa = new ParcursRutina();
-                pa.IdRutina = rut.Id;
-                pa.Data = strData;
-                db.ParcursRutina.Add(pa);
-                db.SaveChanges();
-            
-                foreach (var item in genrut)
-                    {
-                        RutinaActiune ra = new RutinaActiune();
-                        ra.IdActiune = item.IdActiune;
-                        ra.IdRutina = rut.Id;
-                        ra.IdStare = 1;
-                        ra.Stare = st;
-                        ra.Rutina = rut;
-                        ra.Actiune = item.Actiune;
-                        ra.ActiuniCumulate = 0;
-                        db.RutineActiuni.Add(ra);
-                        db.SaveChanges();
-                        MemoryDB.Zile.Add(new Zi(ra));
-
-                    }
-                  
-
-                    
+                    DateTime data = date.AddDays(i);
+                    Utils.GenRutina(data, util, db, genrut.ToList(), st);
+              
                 }
-            var zile = MemoryDB.Zile;
+            ParcursRutina pa = Utils.GenRutina(date.AddDays(60), util, db, genrut.ToList(), st);
+            util.UltimParcursRutina = pa;
+            db.SaveChanges();
+
+
+
+            Task.Factory.StartNew(() => { Utils.GenRutine(date, util, db, genrut.ToList(), st); });
+
+        
+
            
-            ViewModelIndex vmi = new ViewModelIndex(util, date.AddDays(-6), date, zile);
+            var zile = MemoryDB.Zile;
+
+            DateTime ddr = DateTime.Now.Date;
+
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, zile);
 
             return PartialView("_MainContent", vmi);
 

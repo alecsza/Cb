@@ -10,7 +10,6 @@ namespace PrototipConfidenceBuilder.Models
     public static class MemoryDB
     {
         public static  HashSet<Zi> Zile { get; set; }
-        
         public static void  ActualizareMemoryDB( DatabaseContext db)
         {
             List<RutinaActiune> LRA = new List<RutinaActiune>();
