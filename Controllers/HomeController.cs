@@ -50,12 +50,15 @@ namespace PrototipConfidenceBuilder.Controllers
         public ActionResult Inapoi()
         {
             DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
-           
+
+         
+
             Session["dataDeRef"] = ddr1.AddDays(-7);
 
             // return RedirectToAction("Index");
 
             int IdUtil = Utils.UtilizatorLogat();
+            MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil);
             if (IdUtil == 0)
             {
                 return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
@@ -73,6 +76,8 @@ namespace PrototipConfidenceBuilder.Controllers
             DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
             
             Session["dataDeRef"] = ddr1.AddDays(7);
+
+            Session["ZiAn_s"] = ddr1.AddDays(7).DayOfYear;
 
             //return RedirectToAction("Index");
 
@@ -119,11 +124,10 @@ namespace PrototipConfidenceBuilder.Controllers
                     Utils.GenRutina(data, util, db, genrut.ToList(), st);
               
                 }
+            Session["ZiAn_s"] = date.AddDays(53).DayOfYear;
             ParcursRutina pa = Utils.GenRutina(date.AddDays(60), util, db, genrut.ToList(), st);
             util.UltimParcursRutina = pa;
             db.SaveChanges();
-
-
 
             Task.Factory.StartNew(() => { Utils.GenRutine(date, util, db, genrut.ToList(), st); });
 

@@ -58,7 +58,10 @@ namespace PrototipConfidenceBuilder.Models
 
        public ViewModelIndex(Utilizator util, DateTime StartDate, DateTime StopDate, HashSet<Zi> HashsetRA)
         {
-            List<Zi> ListaRA = HashsetRA.Where(x => x.Idutilizator == util.Id).ToList();
+            List<Zi> ListaRA = new List<Zi>();
+            var raEli = HashsetRA.Where(x => x.Idutilizator == util.Id).ToList();
+            if (raEli.Count()>0)
+            ListaRA = raEli.ToList();
             DataStart = StartDate;
             DataStop = StopDate;
             UP = new UtilizatorSiPagina(util, "Istoric Rutină");
@@ -370,10 +373,14 @@ namespace PrototipConfidenceBuilder.Models
             
                     Rutina rut = new Rutina();
                     rut.IdUtilizator = util.Id;
+           
                     context.Rutine.Add(rut);
                     ParcursRutina pa = new ParcursRutina();
                     pa.IdRutina = rut.Id;
                     pa.Data = dataStr;
+                    pa.Zi_An = data.DayOfYear;
+                    pa.An = data.Year;
+            
                     context.ParcursRutina.Add(pa);
 
                     foreach (var item in genrut)
@@ -404,6 +411,7 @@ namespace PrototipConfidenceBuilder.Models
                 Utils.GenRutina(data.AddDays(i), util, context, genrut, st);
            
             }
+            HttpContext.Current.Session["ZiAn_s"] = data.DayOfYear;
         }
 
 
@@ -418,16 +426,18 @@ namespace PrototipConfidenceBuilder.Models
 
             if (ultimparcursRutina != null) {
                 DateTime dataUltimaParcursRutina = DateTime.ParseExact(ultimparcursRutina.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                DateTime dataverificare = dataUltimaParcursRutina.AddDays(1);
+                DateTime dataverificare = dataUltimaParcursRutina.AddDays(1).Date;
             var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat).ToList();
                 Stare st = context.Stari.First(x=>x.Id==1);
                 while (dataverificare < dataActualizare)
                 {
                     Utils.GenRutina(dataverificare, util, context, genrut, st);
-                    dataverificare.AddDays(1);
+                    dataverificare = dataverificare.AddDays(1).Date;
                 }
-               ParcursRutina pa= Utils.GenRutina(dataverificare, util, context, genrut, st);
-                util.UltimParcursRutina = pa;
+                if (dataActualizare> dataUltimaParcursRutina) {
+                    ParcursRutina pa = Utils.GenRutina(dataActualizare, util, context, genrut, st);
+                    util.UltimParcursRutina = pa; 
+                }
             }
         }
 

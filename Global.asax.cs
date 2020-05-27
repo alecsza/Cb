@@ -25,7 +25,9 @@ namespace PrototipConfidenceBuilder
             HttpContext.Current.Session.Add("dataDeRef", dataDeReferinta);
             HttpContext.Current.Session.Add("pasZile", nrZile);
             HttpContext.Current.Session.Add("IdUtilizator", 0);
-            MemoryDB.ActualizareMemoryDB(new DataAccess.DatabaseContext());
+            HttpContext.Current.Session.Add("An_s", dataDeReferinta.Year);
+            HttpContext.Current.Session.Add("ZiAn_s", dataDeReferinta.DayOfYear);
+            MemoryDB.InitMem();
         }
     }
 }

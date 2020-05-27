@@ -30,7 +30,28 @@ textarea {
     table {
         font-size: 50%;
     }
+
+    .card-body {
+        padding: 0;
+    }
+    .col-xl-3 {
+        width: auto;
+        padding-left: .35rem;
+        padding-right: .35rem;
+    }
+    .col-auto{
+        display:none;
+    }
 }
+
+
+
+
+
+
+
+
+/* checkboxws*/
 
 .checkbox label:after,
 .radio label:after {

@@ -157,8 +157,8 @@
     <Compile Include="Controllers\AutentificareController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\StatisticiController.cs" />
-    <Compile Include="DataAccess\Calculation.cs" />
-    <Compile Include="DataAccess\CalculationMap.cs" />
+    <Compile Include="DataAccess\DataTables.cs" />
+    <Compile Include="DataAccess\DataTablesMap.cs" />
     <Compile Include="DataAccess\DataBaseContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

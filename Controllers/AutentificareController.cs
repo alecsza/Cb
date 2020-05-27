@@ -19,14 +19,22 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult Logare(string util, string parola)
         {
-                List<Utilizator> Utilizatori = db.Utilizatori.ToList();
+            int ziAn = DateTime.Now.DayOfYear;
+
+            List<Utilizator> Utilizatori = db.Utilizatori.ToList();
 
                 Utilizator Util = Utilizatori.FirstOrDefault(x => x.Nume == util && x.Parola == parola);
 
                 if(Util!= null)
                 {
-              System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
-                   Utils.ActualizareRutineLaZi(db);
+               System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
+
+                if (Util.IdUltimParcursRutina != null && Util.IdUltimParcursRutina != 0)
+                {
+                    MemoryDB.AddZileToMemory(db, ziAn,Util.Id);
+                    MemoryDB.AddZileToMemoryAsync(db, ziAn-7, Util.Id);
+                    Utils.ActualizareRutineLaZi(db);
+                }
                 return RedirectToAction("Index", "Home");
                 }
                 else
@@ -41,6 +49,7 @@ namespace PrototipConfidenceBuilder.Controllers
         {
            
                 List<Utilizator> Utilizatori = db.Utilizatori.ToList();
+            
 
                 Utilizator Util = Utilizatori.FirstOrDefault(x => x.Nume == util );
 

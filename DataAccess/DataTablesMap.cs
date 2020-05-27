@@ -42,6 +42,8 @@ namespace PrototipConfidenceBuilder.DataAccess
                 Property(p => p.Id).IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
                 Property(p => p.Data).IsRequired();
                 Property(p => p.IdRutina).IsRequired();
+                Property(p => p.An).IsRequired();
+                Property(p => p.Zi_An).IsRequired();
         }
         }
 

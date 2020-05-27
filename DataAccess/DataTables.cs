@@ -35,7 +35,11 @@ namespace PrototipConfidenceBuilder.DataAccess
         public int Id { get; set; }
 
         public int IdRutina { get; set; }
-        public  string Data { get; set; }
+        public string Data { get; set; }
+
+        public int An { get; set; }
+
+        public int Zi_An { get; set; }
 
         [ForeignKey("IdRutina")]
         public virtual Rutina Rutina { get; set; }
