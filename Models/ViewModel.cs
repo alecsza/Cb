@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace PrototipConfidenceBuilder.Models
@@ -341,8 +342,9 @@ namespace PrototipConfidenceBuilder.Models
 
         public static void ActualizareActiuniAcumulate(DatabaseContext db, int stare, int IdRutinaActiune)
         {
+            HashSet<Zi> Zile = MemoryDB.GetZile();
             int modifActCum = stare==2?1:-1;
-            Zi ActModif = MemoryDB.Zile.First(x => x.IdRutinaActiune == IdRutinaActiune);
+            Zi ActModif = Zile.First(x => x.IdRutinaActiune == IdRutinaActiune);
             ActModif.ModificareStare(stare);
             ActModif.ActualizareActiuniCUmulate(modifActCum);
             List<RutinaActiune> DBlistRa = db.RutineActiuni.Where(x => x.IdActiune == ActModif.IdActiune && x.Rutina.IdUtilizator == ActModif.Idutilizator).ToList();
@@ -351,7 +353,7 @@ namespace PrototipConfidenceBuilder.Models
             raModif.ActiuniCumulate += modifActCum;
              
                 
-             foreach(var item in   MemoryDB.Zile.Where(x => x.DataD >ActModif.DataD).Where(x => x.IdActiune == ActModif.IdActiune))
+             foreach(var item in   Zile.Where(x => x.DataD >ActModif.DataD).Where(x => x.IdActiune == ActModif.IdActiune))
             {
                 item.ActualizareActiuniCUmulate(modifActCum);
                 DBlistRa.First(x => x.Id == item.IdRutinaActiune).ActiuniCumulate += modifActCum;
@@ -373,8 +375,9 @@ namespace PrototipConfidenceBuilder.Models
             
                     Rutina rut = new Rutina();
                     rut.IdUtilizator = util.Id;
-           
+                    HashSet<Zi> zile = new HashSet<Zi>();
                     context.Rutine.Add(rut);
+                    context.SaveChanges();
                     ParcursRutina pa = new ParcursRutina();
                     pa.IdRutina = rut.Id;
                     pa.Data = dataStr;
@@ -396,22 +399,70 @@ namespace PrototipConfidenceBuilder.Models
                         ra.ActiuniCumulate = item.TotalAc;
                         context.RutineActiuni.Add(ra);
                         context.SaveChanges();
-                        MemoryDB.Zile.Add(new Zi(ra));
-
+                        MemoryDB.AddZi(new Zi(ra));
+                        zile = MemoryDB.GetZile();
+                        int a = 0;
                     }
                     return pa;
         }
 
-        public static void GenRutine(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
+
+        public static List<RutinaActiune> GenRutinaAct(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
         {
             string dataStr = data.ToString("yyyy-MM-dd");
-            for (int i = 0; i < 53; i++)
+
+            Rutina rut = new Rutina();
+            rut.IdUtilizator = util.Id;
+            HashSet<Zi> zile = new HashSet<Zi>();
+            context.Rutine.Add(rut);
+            context.SaveChanges();
+            ParcursRutina pa = new ParcursRutina();
+            pa.IdRutina = rut.Id;
+            pa.Data = dataStr;
+            pa.Zi_An = data.DayOfYear;
+            pa.An = data.Year;
+
+            context.ParcursRutina.Add(pa);
+
+            foreach (var item in genrut)
             {
 
-                Utils.GenRutina(data.AddDays(i), util, context, genrut, st);
-           
+                RutinaActiune ra = new RutinaActiune();
+                ra.IdActiune = item.IdActiune;
+                ra.IdRutina = rut.Id;
+                ra.IdStare = st.Id;
+                ra.Stare = st;
+                ra.Rutina = rut;
+                ra.Actiune = item.Actiune;
+                ra.ActiuniCumulate = item.TotalAc;
+                context.RutineActiuni.Add(ra);
+                context.SaveChanges();
+                int a = 0;
             }
-            HttpContext.Current.Session["ZiAn_s"] = data.DayOfYear;
+            List<RutinaActiune> lr = pa.Rutina.RutinaActiune.ToList();
+            return lr;
+        }
+
+
+        public async static Task<List<Zi>> GenRutine(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
+        {
+            string dataStr = data.ToString("yyyy-MM-dd");
+            List<RutinaActiune> ras = new List<RutinaActiune>();
+            for (int i = 0; i < 53; i++)
+            {
+                List<RutinaActiune> localRas = new List<RutinaActiune>();
+
+
+                localRas = Utils.GenRutinaAct(data.AddDays(i), util, context, genrut, st);
+                ras.AddRange(localRas);
+
+
+            }
+          
+           
+
+            var raz = ras.Select(x => new Zi(x)).ToList();
+            return raz;
         }
 
 
@@ -434,7 +485,7 @@ namespace PrototipConfidenceBuilder.Models
                     Utils.GenRutina(dataverificare, util, context, genrut, st);
                     dataverificare = dataverificare.AddDays(1).Date;
                 }
-                if (dataActualizare> dataUltimaParcursRutina) {
+                if (dataActualizare == dataverificare) {
                     ParcursRutina pa = Utils.GenRutina(dataActualizare, util, context, genrut, st);
                     util.UltimParcursRutina = pa; 
                 }

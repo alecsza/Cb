@@ -26,7 +26,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 //Get all the calculations again from the db (our new Calculation should be there)
                 DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.GetZile());
                 return View(vmi);
 
         }
@@ -42,7 +42,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = (DateTime)HttpContext.Session["dataDeRef"];
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr,MemoryDB.Zile);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr,MemoryDB.GetZile());
             return PartialView("_MainContent", vmi);
 
         }
@@ -58,7 +58,13 @@ namespace PrototipConfidenceBuilder.Controllers
             // return RedirectToAction("Index");
 
             int IdUtil = Utils.UtilizatorLogat();
-            MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil);
+            var ras = new List<Zi>();
+
+
+            ras = MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil).Result;
+            MemoryDB.AddZile(ras);
+            Session["ZiAn_s"] = ddr1.AddDays(-21);
+
             if (IdUtil == 0)
             {
                 return RedirectToAction("Index", "Autentificare", (object)"Este necesar sa vă autentificați");
@@ -67,7 +73,8 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = ddr1.AddDays(-7);
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
+         
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.GetZile());
             return PartialView("_MainContent",vmi);
         }
 
@@ -91,7 +98,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = ddr1.AddDays(7);
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.Zile);
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.GetZile());
             return PartialView("_MainContent", vmi);
         }
 
@@ -128,13 +135,21 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pa = Utils.GenRutina(date.AddDays(60), util, db, genrut.ToList(), st);
             util.UltimParcursRutina = pa;
             db.SaveChanges();
+            var ras = new List<Zi>();
 
-            Task.Factory.StartNew(() => { Utils.GenRutine(date, util, db, genrut.ToList(), st); });
+          
+              ras =  Utils.GenRutine(date, util, db, genrut.ToList(), st).Result;
 
-        
+              
+            
+            
+            Session["ZiAn_s"] = date.DayOfYear;
+            MemoryDB.AddZile(ras);
 
-           
-            var zile = MemoryDB.Zile;
+
+
+
+            var zile = MemoryDB.GetZile();
 
             DateTime ddr = DateTime.Now.Date;
 

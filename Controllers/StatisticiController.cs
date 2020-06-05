@@ -30,7 +30,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 //Get all the calculations again from the db (our new Calculation should be there)
 
-                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-pasZile), ddr, MemoryDB.Zile);
+                ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-pasZile), ddr, MemoryDB.GetZile());
                 var listaZile = vmi.Status7Z.Select(x => x.ListaZile).SelectMany(x=>x).ToList();
                 var listaDate = vmi.ListaIdSiDataRutina.Select(x => x.Item3).ToList();
                ProgresPeActiunePeZile progresActiunePeZile = new ProgresPeActiunePeZile(listaZile, listaDate, idActiune);
@@ -61,7 +61,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
                 List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
                 ParcursRutina pr = db.ParcursRutina.First(x => Convert.ToDateTime(x.Data) == dinData && x.Rutina.IdUtilizator == util.Id);
-                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util,MemoryDB.Zile, lgr);
+                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util,MemoryDB.GetZile(), lgr);
                 return PartialView("_MainContent", pa);
 
 
@@ -97,7 +97,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile), util, MemoryDB.Zile, lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile), util, MemoryDB.GetZile(), lgr);
             return PartialView("_MainContent", pa);
 
         }
@@ -131,7 +131,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util, MemoryDB.Zile, lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-pasZile ),util, MemoryDB.GetZile(), lgr);
                 return View("Index", pa);
 
         }
@@ -166,7 +166,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 ParcursRutina pr = util.UltimParcursRutina;
 
                 List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
+                ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
                 return PartialView("_MainContent", pa);
 
 
@@ -199,7 +199,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -232,7 +232,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -266,7 +266,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni( dinData.AddDays(-actualizare), util, MemoryDB.Zile,lgr);
+            ProgresActiuni pa = new ProgresActiuni( dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -299,7 +299,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-nrTotalZile), util, MemoryDB.Zile,lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-nrTotalZile), util, MemoryDB.GetZile(),lgr);
             return PartialView("_MainContent", pa); ;
 
 
