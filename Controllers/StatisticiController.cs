@@ -177,10 +177,14 @@ namespace PrototipConfidenceBuilder.Controllers
 
            int IdUtil = Utils.UtilizatorLogat();
                 int nrTotalZile = db.ParcursRutina.Where(x=>x.Rutina.IdUtilizator == IdUtil).Count();
-                int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
             DateTime dinData = DateTime.Now;
             string dinDataStr = dinData.ToString("yyyy-MM-dd");
+            int zi_an_s = (int)HttpContext.Session["pasZile"];
+            int nrTotalZileDeAdaugat = zi_an_s - dinData.AddDays(-30).DayOfYear;
+            MemoryDB.AddZileToMemoryAsync(db, zi_an_s, IdUtil, nrTotalZileDeAdaugat);
+            int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+           
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -210,10 +214,14 @@ namespace PrototipConfidenceBuilder.Controllers
             
                 int IdUtil = Utils.UtilizatorLogat();
                 int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
-                int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
             DateTime dinData = DateTime.Now;
             string dinDataStr = dinData.ToString("yyyy-MM-dd");
+            int zi_an_s = (int)HttpContext.Session["pasZile"];
+            int nrTotalZileDeAdaugat = zi_an_s - dinData.AddDays(-90).DayOfYear;
+            MemoryDB.AddZileToMemoryAsync(db, zi_an_s, IdUtil, nrTotalZileDeAdaugat);
+            int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+           
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -244,11 +252,15 @@ namespace PrototipConfidenceBuilder.Controllers
             
                 int IdUtil = Utils.UtilizatorLogat();
                 int nrTotalZile = db.ParcursRutina.Where(x => x.Rutina.IdUtilizator == IdUtil).Count();
-                int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
             DateTime dinData = DateTime.Now;
             string dinDataStr = dinData.ToString("yyyy-MM-dd");
-
+            int zi_an_s = (int)HttpContext.Session["pasZile"];
+           int nrTotalZileDeAdaugat  = zi_an_s - dinData.AddDays(-180).DayOfYear;
+            MemoryDB.AddZileToMemoryAsync(db, zi_an_s, IdUtil, nrTotalZileDeAdaugat);
+                int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
+                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+           
+            
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
             if (util.UltimParcursRutina == null)

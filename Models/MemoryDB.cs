@@ -75,16 +75,20 @@ namespace PrototipConfidenceBuilder.Models
             });
         }
 
-        public async static Task<List<Zi>>  AddZileToMemoryAsync(DatabaseContext db, int zi_an_s, int idUtil)
+        public async static Task<List<Zi>>  AddZileToMemoryAsync(DatabaseContext db, int zi_an_s, int idUtil,int nzile=0)
         {
             HashSet<Zi> Zile = GetZile();
-            int panaLaZiua = zi_an_s - 14;
-            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == panaLaZiua);
+            int dinziua = zi_an_s - 14;
+            if (nzile > 0)
+                dinziua = zi_an_s - nzile;
+
+            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == dinziua);
 
             List<Zi> lz = new List<Zi>();
             if (ziCheck == null)
+
             {
-                var LRA = db.ParcursRutina.Where(x => x.Zi_An < zi_an_s && x.Zi_An >= panaLaZiua && x.Rutina.IdUtilizator == idUtil).
+                var LRA = db.ParcursRutina.Where(x => x.Zi_An < zi_an_s && x.Zi_An >= dinziua && x.Rutina.IdUtilizator == idUtil).
                 Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
 
                 foreach (RutinaActiune x in LRA)
@@ -101,13 +105,13 @@ namespace PrototipConfidenceBuilder.Models
 
         public static void AddZileToMemory(DatabaseContext db, int zi_an_s, int idUtil)
         {
-            int panaLaZiua = zi_an_s - 7;
+            int dinziua = zi_an_s - 7;
             HashSet<Zi> Zile = GetZile();
-            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == panaLaZiua);
+            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == dinziua);
 
             if (ziCheck == null)
             {
-                var LRA = db.ParcursRutina.Where(x => x.Zi_An <= zi_an_s && x.Zi_An > panaLaZiua && x.Rutina.IdUtilizator == idUtil).
+                var LRA = db.ParcursRutina.Where(x => x.Zi_An <= zi_an_s && x.Zi_An > dinziua && x.Rutina.IdUtilizator == idUtil).
                        Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
 
 
@@ -120,7 +124,7 @@ namespace PrototipConfidenceBuilder.Models
                 Zile = GetZile();
             }
 
-            HttpContext.Current.Session["ZiAn_s"] = panaLaZiua;
+            HttpContext.Current.Session["ZiAn_s"] = dinziua;
         }
     }
 }

@@ -8,8 +8,14 @@
     <div id="content-wrapper" class="d-flex flex-column">
 
         <!-- Main Content -->
-        <div id="content">
-            @Html.Partial("_MainContent", Model)
+
+        @Html.Partial("~/Views/_TopHeader.cshtml", Model.UP)
+
+        <div class="container-fluid">
+            @Html.Partial("_PerioadaPartial")
+            <div id="content">
+                @Html.Partial("_MainContent", Model)
+            </div>
+        </div>
         </div>
     </div>
-</div>

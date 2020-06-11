@@ -400,7 +400,6 @@ namespace PrototipConfidenceBuilder.Models
                         context.RutineActiuni.Add(ra);
                         context.SaveChanges();
                         MemoryDB.AddZi(new Zi(ra));
-                        zile = MemoryDB.GetZile();
                         int a = 0;
                     }
                     return pa;
@@ -462,7 +461,11 @@ namespace PrototipConfidenceBuilder.Models
            
 
             var raz = ras.Select(x => new Zi(x)).ToList();
+            
             return raz;
+
+            HttpContext.Current.Session["ZiAn_s"] = data.DayOfYear;
+            MemoryDB.AddZile(raz);
         }
 
 
@@ -477,18 +480,23 @@ namespace PrototipConfidenceBuilder.Models
 
             if (ultimparcursRutina != null) {
                 DateTime dataUltimaParcursRutina = DateTime.ParseExact(ultimparcursRutina.Data.Trim(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture).Date;
-                DateTime dataverificare = dataUltimaParcursRutina.AddDays(1).Date;
+                DateTime dataverificare = dataUltimaParcursRutina.Date;
             var genrut = context.GeneratorRutina.Where(x => x.IdUtilizator == idUtilLogat).ToList();
                 Stare st = context.Stari.First(x=>x.Id==1);
+                if (dataverificare < dataActualizare)
+                {
+                   ParcursRutina pr= Utils.GenRutina(dataActualizare, util, context, genrut, st);
+                    util.UltimParcursRutina = pr;
+                    util.IdUltimParcursRutina = pr.Id;
+
+                    context.SaveChanges();
+                }
                 while (dataverificare < dataActualizare)
                 {
                     Utils.GenRutina(dataverificare, util, context, genrut, st);
                     dataverificare = dataverificare.AddDays(1).Date;
                 }
-                if (dataActualizare == dataverificare) {
-                    ParcursRutina pa = Utils.GenRutina(dataActualizare, util, context, genrut, st);
-                    util.UltimParcursRutina = pa; 
-                }
+          
             }
         }
 

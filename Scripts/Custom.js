@@ -251,3 +251,11 @@ $(document).on("click", ".mainContent", function () {
     $('#content').load(url);
 
 });
+
+$(document).on("click", ".mainContent", function () {
+
+    $(".card").removeClass("alert-dark");
+    $(this).parent().addClass("alert-dark");
+
+
+});

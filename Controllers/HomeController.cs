@@ -137,18 +137,10 @@ namespace PrototipConfidenceBuilder.Controllers
             db.SaveChanges();
             var ras = new List<Zi>();
 
-          
-              ras =  Utils.GenRutine(date, util, db, genrut.ToList(), st).Result;
+            Task.Run(() => Utils.GenRutine(date, util, db, genrut.ToList(), st));
+           
 
               
-            
-            
-            Session["ZiAn_s"] = date.DayOfYear;
-            MemoryDB.AddZile(ras);
-
-
-
-
             var zile = MemoryDB.GetZile();
 
             DateTime ddr = DateTime.Now.Date;
