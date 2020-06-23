@@ -12,9 +12,9 @@ namespace PrototipConfidenceBuilder.Models
     {
         public static HashSet<Zi> GetZile()
         {
-            List<Zi> zile = ((HashSet<Zi>) (HttpContext.Current.Session["Zile"])).ToList();
+            HashSet<Zi> zile = ((HashSet<Zi>) (HttpContext.Current.Session["Zile"]));
 
-            return  new HashSet<Zi> (zile);
+            return  zile;
         }
 
         public static void AddZi(Zi zi)
@@ -103,6 +103,49 @@ namespace PrototipConfidenceBuilder.Models
           
         }
 
+        public async static Task<List<Zi>> ActualizareZileToMemoryAsync(DatabaseContext db, int idUtil)
+        {
+            HashSet<Zi> Zile = GetZile();
+        
+
+        
+            List<Zi> lz = new List<Zi>();
+          
+                var LRA = db.ParcursRutina.Where(x=> x.Rutina.IdUtilizator == idUtil).
+                Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
+
+                foreach (RutinaActiune x in LRA)
+                {
+                    Zi zc = Zile.FirstOrDefault(y => y.IdRutinaActiune == x.Id);
+                    if (zc == null)
+                        lz.Add(new Zi(x));
+                }
+
+            
+            return lz;
+
+        }
+
+        public async static Task<Zi>  AddZiAsync(Zi zi)
+        {
+            List<Zi> Zile = new List<Zi>();
+            try
+            {
+                var hSes = (HashSet<Zi>)HttpContext.Current.Session["Zile"];
+
+                Zile = hSes.ToList();
+                Zile.Add(zi);
+                HttpContext.Current.Session["Zile"] = new HashSet<Zi>(Zile);
+                return zi;
+            }
+            catch (Exception ex)
+            {
+                string str = $"{ex.Message}, {ex.StackTrace}, {ex.InnerException}";
+                return null;
+            }
+        }
+
+
         public static void AddZileToMemory(DatabaseContext db, int zi_an_s, int idUtil)
         {
             int dinziua = zi_an_s - 7;
@@ -111,7 +154,7 @@ namespace PrototipConfidenceBuilder.Models
 
             if (ziCheck == null)
             {
-                var LRA = db.ParcursRutina.Where(x => x.Zi_An <= zi_an_s && x.Zi_An > dinziua && x.Rutina.IdUtilizator == idUtil).
+                var LRA = db.ParcursRutina.Where(x =>  x.Zi_An > dinziua && x.Rutina.IdUtilizator == idUtil).
                        Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
 
 
@@ -126,5 +169,8 @@ namespace PrototipConfidenceBuilder.Models
 
             HttpContext.Current.Session["ZiAn_s"] = dinziua;
         }
+
+
+
     }
 }

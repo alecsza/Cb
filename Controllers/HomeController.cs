@@ -61,9 +61,9 @@ namespace PrototipConfidenceBuilder.Controllers
             var ras = new List<Zi>();
 
 
-            ras = MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil).Result;
-            MemoryDB.AddZile(ras);
-            Session["ZiAn_s"] = ddr1.AddDays(-21);
+            //ras = MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil).Result;
+            //MemoryDB.AddZile(ras);
+            //Session["ZiAn_s"] = ddr1.AddDays(-21);
 
             if (IdUtil == 0)
             {
@@ -73,9 +73,11 @@ namespace PrototipConfidenceBuilder.Controllers
 
             //Get all the calculations again from the db (our new Calculation should be there)
             DateTime ddr = ddr1.AddDays(-7);
-         
-            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.GetZile());
-            return PartialView("_MainContent",vmi);
+            var zile = MemoryDB.GetZile();
+
+
+            ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, zile);
+             return PartialView("_MainContent",vmi);
         }
 
         public ActionResult Inainte()
@@ -122,7 +124,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 if (genrut.Count() < 1)
                 {
-                    return RedirectToAction("PartialIndex", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o acțiune în rutină" });
+                    return RedirectToAction("PartialIndex", "AdministrareRutina", new {mesaj ="Este necesar să adăugați măcar o activitate în rutină" });
                 }
 
                 for (int i = 53; i <= 59; i++)
@@ -135,12 +137,16 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pa = Utils.GenRutina(date.AddDays(60), util, db, genrut.ToList(), st);
             util.UltimParcursRutina = pa;
             db.SaveChanges();
-            var ras = new List<Zi>();
 
-            Task.Run(() => Utils.GenRutine(date, util, db, genrut.ToList(), st));
-           
+            
+                var lz =Utils.GenRutine(date, util, db, genrut.ToList(), st).Result;
+                MemoryDB.AddZile(lz);
+             
+         
 
-              
+
+            
+
             var zile = MemoryDB.GetZile();
 
             DateTime ddr = DateTime.Now.Date;
@@ -158,7 +164,7 @@ namespace PrototipConfidenceBuilder.Controllers
                    {
                   Utils.ActualizareActiuniAcumulate(db, stare, IdRutinaActiune);
                     
-                    }
+                   }
 
                 catch(Exception ex)
                 {

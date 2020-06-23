@@ -32,7 +32,8 @@ namespace PrototipConfidenceBuilder.Controllers
                 if (Util.IdUltimParcursRutina != null && Util.IdUltimParcursRutina != 0)
                 {
                     MemoryDB.AddZileToMemory(db, ziAn,Util.Id);
-                    MemoryDB.AddZileToMemoryAsync(db, ziAn-7, Util.Id);
+                  var ras =  MemoryDB.ActualizareZileToMemoryAsync(db, Util.Id).Result;
+                    MemoryDB.AddZile(ras);
                     Utils.ActualizareRutineLaZi(db);
                 }
                 return RedirectToAction("Index", "Home");
@@ -65,7 +66,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     Util.Parola = parola;
                     db.Utilizatori.Add(Util);
                     db.SaveChanges();
-                    string mesaj = "Este necesar să adăugați cel putin o acțiune în rutina dumneavoastră";
+                    string mesaj = "Este necesar să adăugați cel putin o activitate în rutina dumneavoastră";
                     System.Web.HttpContext.Current.Session["IdUtilizator"] = Util.Id;
                     return RedirectToAction("Index", "AdministrareRutina", new { mesaj });
                 }

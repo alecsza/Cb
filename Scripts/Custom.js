@@ -254,7 +254,7 @@ $(document).on("click", ".mainContent", function () {
 
 $(document).on("click", ".mainContent", function () {
 
-    $(".card").removeClass("alert-dark");
+    $(".pbtn").removeClass("alert-dark");
     $(this).parent().addClass("alert-dark");
 
 

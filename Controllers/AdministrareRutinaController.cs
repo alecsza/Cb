@@ -62,7 +62,7 @@ namespace PrototipConfidenceBuilder.Controllers
                     generatorRutina.Activ = stare;
                     db.SaveChanges();
 
-                    return Json(new { mesaj = "Starea acțiunii a fost midificată cu succes" }, JsonRequestBehavior.AllowGet);
+                    return Json(new { mesaj = "Starea activității a fost modificată cu succes" }, JsonRequestBehavior.AllowGet);
                 }
             
             catch (Exception ex)
@@ -99,14 +99,14 @@ namespace PrototipConfidenceBuilder.Controllers
 
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtilizator);
                 List<GeneratorRutina> LGR = db.GeneratorRutina.Where(x => x.IdUtilizator == IdUtilizator).ToList();
-                ViewModelAdminGeneratorRutine vm = new ViewModelAdminGeneratorRutine(LGR, util, "Acțiune adăugată cu succes");
+                ViewModelAdminGeneratorRutine vm = new ViewModelAdminGeneratorRutine(LGR, util, "Activitate adăugată cu succes");
 
                 return PartialView("_MainContent", vm);
 
             }
             catch (Exception ex)
             {
-                string mesaj = mesaj = $"a apărut o eroare, așa din senin.... {ex.Message}";
+                string mesaj = mesaj = $"a apărut o eroare.... {ex.Message}";
 
                 Utilizator util = db.Utilizatori.First(x => x.Id == IdUtilizator);
                 List<GeneratorRutina> LGR = db.GeneratorRutina.Where(x => x.IdUtilizator == IdUtilizator).ToList();
