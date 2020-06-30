@@ -10,7 +10,7 @@ namespace PrototipConfidenceBuilder.Controllers
 {
     public class AdministrareRutinaController : Controller
     {
-        DatabaseContext db = new DatabaseContext();
+        DatabaseContext db = MemoryDB.db;
         // GET: AdministrareRutina
         public ActionResult Index(string mesaj = "")
         {

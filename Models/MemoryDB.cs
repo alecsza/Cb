@@ -10,6 +10,7 @@ namespace PrototipConfidenceBuilder.Models
 {
     public static class MemoryDB
     {
+        public static DatabaseContext db { get; set; }
         public static HashSet<Zi> GetZile()
         {
             HashSet<Zi> zile = ((HashSet<Zi>) (HttpContext.Current.Session["Zile"]));
@@ -75,39 +76,76 @@ namespace PrototipConfidenceBuilder.Models
             });
         }
 
-        public async static Task<List<Zi>>  AddZileToMemoryAsync(DatabaseContext db, int zi_an_s, int idUtil,int nzile=0)
+        public async static Task<List<Zi>> ZileAsync(DatabaseContext db, int dinZiua, int idUtil, int nzile = 0)
         {
             HashSet<Zi> Zile = GetZile();
-            int dinziua = zi_an_s - 14;
+            int panaLaZiua = dinZiua + 14;
             if (nzile > 0)
-                dinziua = zi_an_s - nzile;
+                panaLaZiua = dinZiua + nzile;
 
-            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == dinziua);
+            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == dinZiua);
 
             List<Zi> lz = new List<Zi>();
             if (ziCheck == null)
 
             {
-                var LRA = db.ParcursRutina.Where(x => x.Zi_An < zi_an_s && x.Zi_An >= dinziua && x.Rutina.IdUtilizator == idUtil).
+                var LRA = db.ParcursRutina.Where(x => x.Zi_An < panaLaZiua && x.Zi_An >= dinZiua && x.Rutina.IdUtilizator == idUtil).
                 Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
 
                 foreach (RutinaActiune x in LRA)
-                    {
-                        Zi zc = Zile.FirstOrDefault(y => y.IdRutinaActiune == x.Id);
-                        if (zc == null)
-                            lz.Add(new Zi(x));
-                    }
+                {
+                    Zi zc = Zile.FirstOrDefault(y => y.IdRutinaActiune == x.Id);
+                    if (zc == null)
+                        lz.Add(new Zi(x));
+                }
 
             }
+            HttpContext.Current.Session["ZiAn_s"] = dinZiua;
             return lz;
-          
+
+        }
+        public async static Task  AddZileToMemoryAsync(DatabaseContext db, int dinZiua, int idUtil,int nzile=0)
+        {
+           var zile = await ZileAsync(db, dinZiua, idUtil, nzile = 0);
+            MemoryDB.AddZile(zile);
+
+
+        }
+
+        public static List<Zi> AddZileToMemorySync(DatabaseContext db, int dinZiua, int idUtil, int nzile = 0)
+        {
+            HashSet<Zi> Zile = GetZile();
+            int panaLaZiua = dinZiua + 14;
+            if (nzile > 0)
+                panaLaZiua = dinZiua + nzile;
+
+            var ziCheck = Zile.FirstOrDefault(x => x.DataD.DayOfYear == dinZiua);
+            List<Zi> lz = new List<Zi>();
+
+            if (ziCheck == null)
+
+            {
+                var LRA = db.ParcursRutina.Where(x => x.Zi_An < panaLaZiua && x.Zi_An >= dinZiua && x.Rutina.IdUtilizator == idUtil).
+                Select(y => y.Rutina.RutinaActiune).SelectMany(x => x).ToList();
+
+                foreach (RutinaActiune x in LRA)
+                {
+                    Zi zc = Zile.FirstOrDefault(y => y.IdRutinaActiune == x.Id);
+                    if (zc == null)
+                        lz.Add(new Zi(x));
+                }
+
+            }
+            MemoryDB.AddZile(lz);
+            HttpContext.Current.Session["ZiAn_s"] = dinZiua;
+            return lz;
+
+
         }
 
         public async static Task<List<Zi>> ActualizareZileToMemoryAsync(DatabaseContext db, int idUtil)
         {
             HashSet<Zi> Zile = GetZile();
-        
-
         
             List<Zi> lz = new List<Zi>();
           

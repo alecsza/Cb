@@ -341,8 +341,13 @@ namespace PrototipConfidenceBuilder.Models
                return new ObiectRepartitie(ListaOx, Valori, procent, denumireActiune);
             
         }
+        public async static Task ActualizareActiuniAcumulateAsync(DatabaseContext db, int stare, int IdRutinaActiune)
+        {
+            await ActualizareActiuniAcumulate(db, stare, IdRutinaActiune);
+        }
 
-        public async static Task  ActualizareActiuniAcumulate(DatabaseContext db, int stare, int IdRutinaActiune)
+
+            public async static Task  ActualizareActiuniAcumulate(DatabaseContext db, int stare, int IdRutinaActiune)
         {
             HashSet<Zi> Zile = MemoryDB.GetZile();
             int modifActCum = stare==2?1:-1;
@@ -390,6 +395,7 @@ namespace PrototipConfidenceBuilder.Models
 
                     foreach (var item in genrut)
                     {
+                       var rac = util.UltimParcursRutina.Rutina.RutinaActiune.FirstOrDefault(x => x.IdActiune == item.IdActiune);
 
                         RutinaActiune ra = new RutinaActiune();
                         ra.IdActiune = item.IdActiune;
@@ -398,7 +404,10 @@ namespace PrototipConfidenceBuilder.Models
                         ra.Stare = st;
                         ra.Rutina = rut;
                         ra.Actiune = item.Actiune;
-                        ra.ActiuniCumulate = item.TotalAc;
+                if (rac != null)
+                    ra.ActiuniCumulate = rac.ActiuniCumulate;
+                else
+                    ra.ActiuniCumulate = 0;
                         context.RutineActiuni.Add(ra);
                         context.SaveChanges();
                         MemoryDB.AddZi(new Zi(ra));
@@ -407,7 +416,7 @@ namespace PrototipConfidenceBuilder.Models
                     return pa;
         }
 
-        public static List<Zi> GenRutinaAct(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
+        public async static Task< List<Zi>> GenRutinaAct(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
         {
             string dataStr = data.ToString("yyyy-MM-dd");
             List<Zi> lz= new List<Zi>();
@@ -436,7 +445,7 @@ namespace PrototipConfidenceBuilder.Models
                 ra.Actiune = item.Actiune;
                 ra.ActiuniCumulate = item.TotalAc;
                 context.RutineActiuni.Add(ra);
-                MemoryDB.AddZiAsync(new Zi(ra));
+                //MemoryDB.AddZiAsync(new Zi(ra));
                 context.SaveChanges();
                 lz.Add(new Zi(ra));
                 int a = 0;
@@ -446,22 +455,19 @@ namespace PrototipConfidenceBuilder.Models
         }
 
 
-        public async  static Task< List<Zi>> GenRutine(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
+        public async  static Task GenRutine(DateTime data, Utilizator util, DatabaseContext context, List<GeneratorRutina> genrut, Stare st)
         {
 
-            List<Zi> lz = new List<Zi>();
-            for (int i = 0; i < 53; i++)
+            Task.Run(() =>
             {
+                List<Zi> lz = new List<Zi>();
+                for (int i = 52; i >= 0; i--)
+                {
+                    List<Zi> lzz = Utils.GenRutinaAct(data.AddDays(i), util, context, genrut, st).Result;
+                    lz.AddRange(lzz);
 
-
-           List<Zi> lzz =   Utils.GenRutinaAct(data.AddDays(i), util, context, genrut, st);
-                lz.AddRange(lzz);
-
-            }
-
-
-            return lz;
-           
+                }
+            });
         }
 
 

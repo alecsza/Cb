@@ -13,7 +13,7 @@ namespace PrototipConfidenceBuilder.Controllers
     {
 
         // GET: Statistici
-        DatabaseContext db = new DatabaseContext();
+        DatabaseContext db = MemoryDB.db;
 
         public ActionResult Chart(int idActiune)
         {
@@ -152,19 +152,34 @@ namespace PrototipConfidenceBuilder.Controllers
         {
 
            int IdUtil = Utils.UtilizatorLogat();
-                int nrTotalZile = MemoryDB.GetZile().Where(x => x.Idutilizator == IdUtil).Select(x=>x.IdParcursRutina).Distinct().Count();
+                
             DateTime dinData = DateTime.Now;
          
+          
+              
+
+            int pasZile = (int)HttpContext.Session["pasZile"];
+            int zi_an_s = (int)HttpContext.Session["ZiAn_s"];
+            int nrTotalZileDeAdaugat =zi_an_s - dinData.AddDays(-30).DayOfYear ;
+         
+            var zile = MemoryDB.GetZile().ToList();
+            if (nrTotalZileDeAdaugat > 0)
+            {
+                List<Zi> lz = new List<Zi>();
+                lz = MemoryDB.AddZileToMemorySync(db, dinData.AddDays(-30).DayOfYear, IdUtil, nrTotalZileDeAdaugat);
+                zile.AddRange(lz);
+
+            }
+            int nrTotalZile = zile.Where(x => x.Idutilizator == IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
             int actualizare = nrTotalZile > 30 ? 30 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
-           
+            System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util,new HashSet<Zi>( zile), lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -174,12 +189,27 @@ namespace PrototipConfidenceBuilder.Controllers
         {
             
                 int IdUtil = Utils.UtilizatorLogat();
-            int nrTotalZile = MemoryDB.GetZile().Where(x => x.Idutilizator == IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
-            DateTime dinData = DateTime.Now;
-          
-            int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+                DateTime dinData = DateTime.Now;
+
+
+            int pasZile = (int)HttpContext.Session["pasZile"];
+            int zi_an_s = (int)HttpContext.Session["ZiAn_s"];
+            int nrTotalZileDeAdaugat = zi_an_s- dinData.AddDays(-90).DayOfYear ;
+            var zile = MemoryDB.GetZile().ToList();
+
+            if (nrTotalZileDeAdaugat > 0)
+            {
+                List<Zi> lz = new List<Zi>();
+                lz = MemoryDB.AddZileToMemorySync(db, dinData.AddDays(-90).DayOfYear, IdUtil, nrTotalZileDeAdaugat);
+            
+                zile.AddRange(lz);
+            }
+            int nrTotalZile = zile.Where(x => x.Idutilizator == IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
            
+            int actualizare = nrTotalZile > 90 ? 90 : nrTotalZile;
+            System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+
+
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -198,7 +228,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-actualizare), util, new HashSet<Zi>( zile),lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -208,26 +238,33 @@ namespace PrototipConfidenceBuilder.Controllers
         public ActionResult ProgresPe6Luni()
         {
             
-                int IdUtil = Utils.UtilizatorLogat();
-            int nrTotalZile = MemoryDB.GetZile().Where(x => x.Idutilizator == IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
+            int IdUtil = Utils.UtilizatorLogat();
             DateTime dinData = DateTime.Now;
             string dinDataStr = dinData.ToString("yyyy-MM-dd");
-         //   int zi_an_s = (int)HttpContext.Session["pasZile"];
-         //  int nrTotalZileDeAdaugat  = zi_an_s - dinData.AddDays(-180).DayOfYear;
+           int pasZile = (int)HttpContext.Session["pasZile"];
+           int zi_an_s = (int)HttpContext.Session["ZiAn_s"];
+           int nrTotalZileDeAdaugat  = zi_an_s- dinData.AddDays(-180).DayOfYear  ;
+            var zile = MemoryDB.GetZile().ToList();
 
-         //var ras =   MemoryDB.AddZileToMemoryAsync(db, zi_an_s, IdUtil, nrTotalZileDeAdaugat).Result;
-         //   MemoryDB.AddZile(ras);
-            int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
-                System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
-           
+            if (nrTotalZileDeAdaugat > 0)
+            {
+                List<Zi> lz = new List<Zi>();
+                lz =   MemoryDB.AddZileToMemorySync(db, dinData.AddDays(-180).DayOfYear, IdUtil, nrTotalZileDeAdaugat);
             
+                zile.ToList().AddRange(lz);
+            }
+            int nrTotalZile = zile.Where(x => x.Idutilizator == IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
+
+
+            int actualizare = nrTotalZile > 180 ? 180 : nrTotalZile;
+            System.Web.HttpContext.Current.Session["pasZile"] = actualizare;
+           
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
-        
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni( dinData.AddDays(-actualizare), util, MemoryDB.GetZile(),lgr);
+            ProgresActiuni pa = new ProgresActiuni( dinData.AddDays(-actualizare), util,new HashSet<Zi>( zile),lgr);
             return PartialView("_MainContent", pa);
 
 
@@ -238,10 +275,25 @@ namespace PrototipConfidenceBuilder.Controllers
         {
             
                 int IdUtil = Utils.UtilizatorLogat();
-            int nrTotalZile = MemoryDB.GetZile().Where(x=>x.Idutilizator== IdUtil).Select(x => x.IdParcursRutina).Distinct().Count();
-            System.Web.HttpContext.Current.Session["pasZile"] = nrTotalZile;
+
             DateTime dinData = DateTime.Now;
             string dinDataStr = dinData.ToString("yyyy-MM-dd");
+
+            int pasZile = (int)HttpContext.Session["pasZile"];
+            int zi_an_s = (int)HttpContext.Session["ZiAn_s"];
+            int nrTotalZileDeAdaugat = zi_an_s- dinData.AddDays(-pasZile).DayOfYear ;
+
+            
+            var zile = MemoryDB.GetZile().ToList();
+
+            if (nrTotalZileDeAdaugat > 0)
+            {
+                List<Zi> lz = new List<Zi>();
+                lz =   MemoryDB.AddZileToMemorySync(db, dinData.AddDays(-180).DayOfYear, IdUtil, nrTotalZileDeAdaugat);
+                zile.AddRange(lz);
+            }
+            int nrTotalZile = zile.Where(x=>x.Idutilizator== IdUtil).Select(x => x.IdParcursRutina).Distinct().Count(); 
+            System.Web.HttpContext.Current.Session["pasZile"] = nrTotalZile;
 
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
@@ -249,7 +301,7 @@ namespace PrototipConfidenceBuilder.Controllers
             ParcursRutina pr = util.UltimParcursRutina;
 
             List<GeneratorRutina> lgr = db.GeneratorRutina.Where(x => x.IdUtilizator == util.Id).ToList();
-            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-nrTotalZile), util, MemoryDB.GetZile(),lgr);
+            ProgresActiuni pa = new ProgresActiuni(dinData.AddDays(-nrTotalZile), util,new HashSet<Zi>( zile), lgr);
             return PartialView("_MainContent", pa); ;
 
 

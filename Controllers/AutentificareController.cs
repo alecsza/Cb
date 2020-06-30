@@ -11,7 +11,7 @@ namespace PrototipConfidenceBuilder.Controllers
     public class AutentificareController : Controller
     {
         // GET: Autentificare
-        DatabaseContext db = new DatabaseContext();
+        DatabaseContext db = MemoryDB.db;
         public ActionResult Index(string mesaj="")
         {
             return View("Index", (object)mesaj);
@@ -32,8 +32,7 @@ namespace PrototipConfidenceBuilder.Controllers
                 if (Util.IdUltimParcursRutina != null && Util.IdUltimParcursRutina != 0)
                 {
                     MemoryDB.AddZileToMemory(db, ziAn,Util.Id);
-                  var ras =  MemoryDB.ActualizareZileToMemoryAsync(db, Util.Id).Result;
-                    MemoryDB.AddZile(ras);
+                    MemoryDB.AddZileToMemoryAsync(db, ziAn-14, Util.Id);
                     Utils.ActualizareRutineLaZi(db);
                 }
                 return RedirectToAction("Index", "Home");

@@ -13,7 +13,7 @@ namespace PrototipConfidenceBuilder.Controllers
 
     public class HomeController : Controller
     {
-        DatabaseContext db = new DatabaseContext();
+       DatabaseContext db = MemoryDB.db;
         public ActionResult Index()
         {
            
@@ -49,21 +49,15 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult Inapoi()
         {
-            DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
+            DateTime dataDeReferinta = (DateTime)HttpContext.Session["dataDeRef"];
 
-         
-
-            Session["dataDeRef"] = ddr1.AddDays(-7);
-
-            // return RedirectToAction("Index");
+            Session["dataDeRef"] = dataDeReferinta.AddDays(-7);
 
             int IdUtil = Utils.UtilizatorLogat();
-            var ras = new List<Zi>();
 
 
-            //ras = MemoryDB.AddZileToMemoryAsync(db, ddr1.AddDays(-7).DayOfYear, IdUtil).Result;
-            //MemoryDB.AddZile(ras);
-            //Session["ZiAn_s"] = ddr1.AddDays(-21);
+            MemoryDB.AddZileToMemoryAsync(db, dataDeReferinta.AddDays(-14).DayOfYear, IdUtil);
+   
 
             if (IdUtil == 0)
             {
@@ -71,8 +65,7 @@ namespace PrototipConfidenceBuilder.Controllers
             }
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
-            //Get all the calculations again from the db (our new Calculation should be there)
-            DateTime ddr = ddr1.AddDays(-7);
+            DateTime ddr = dataDeReferinta.AddDays(-7);
             var zile = MemoryDB.GetZile();
 
 
@@ -82,11 +75,11 @@ namespace PrototipConfidenceBuilder.Controllers
 
         public ActionResult Inainte()
         {
-            DateTime ddr1 = (DateTime)HttpContext.Session["dataDeRef"];
+            DateTime dataDeReferinta = (DateTime)HttpContext.Session["dataDeRef"];
             
-            Session["dataDeRef"] = ddr1.AddDays(7);
+            Session["dataDeRef"] = dataDeReferinta.AddDays(7);
 
-            Session["ZiAn_s"] = ddr1.AddDays(7).DayOfYear;
+            Session["ZiAn_s"] = dataDeReferinta.AddDays(7).DayOfYear;
 
             //return RedirectToAction("Index");
 
@@ -99,7 +92,7 @@ namespace PrototipConfidenceBuilder.Controllers
             Utilizator util = db.Utilizatori.First(x => x.Id == IdUtil);
 
             //Get all the calculations again from the db (our new Calculation should be there)
-            DateTime ddr = ddr1.AddDays(7);
+            DateTime ddr = dataDeReferinta.AddDays(7);
             ViewModelIndex vmi = new ViewModelIndex(util, ddr.AddDays(-6), ddr, MemoryDB.GetZile());
             return PartialView("_MainContent", vmi);
         }
@@ -133,14 +126,15 @@ namespace PrototipConfidenceBuilder.Controllers
                     Utils.GenRutina(data, util, db, genrut.ToList(), st);
               
                 }
-            Session["ZiAn_s"] = date.AddDays(53).DayOfYear;
+            Session["ZiAn_s"] = date.AddDays(56).DayOfYear;
             ParcursRutina pa = Utils.GenRutina(date.AddDays(60), util, db, genrut.ToList(), st);
             util.UltimParcursRutina = pa;
             db.SaveChanges();
 
-            
-                var lz =Utils.GenRutine(date, util, db, genrut.ToList(), st).Result;
-                MemoryDB.AddZile(lz);
+
+
+            Utils.GenRutine(date, util, db, genrut.ToList(), st);
+                 
              
          
 
@@ -162,7 +156,7 @@ namespace PrototipConfidenceBuilder.Controllers
            
                 try
                    {
-                  Utils.ActualizareActiuniAcumulate(db, stare, IdRutinaActiune);
+                  Utils.ActualizareActiuniAcumulateAsync(db, stare, IdRutinaActiune);
                     
                    }
 

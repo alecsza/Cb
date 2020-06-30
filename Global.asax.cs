@@ -29,6 +29,7 @@ namespace PrototipConfidenceBuilder
             HttpContext.Current.Session.Add("An_s", dataDeReferinta.Year);
             HttpContext.Current.Session.Add("ZiAn_s", dataDeReferinta.DayOfYear);
             HttpContext.Current.Session.Add("Zile", Zile);
+            MemoryDB.db = new DataAccess.DatabaseContext();
         }
     }
 }
