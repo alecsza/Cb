@@ -392,10 +392,12 @@ namespace PrototipConfidenceBuilder.Models
                     pa.An = data.Year;
             
                     context.ParcursRutina.Add(pa);
-
+                    var upc = util.UltimParcursRutina;
                     foreach (var item in genrut)
+            
                     {
-                       var rac = util.UltimParcursRutina.Rutina.RutinaActiune.FirstOrDefault(x => x.IdActiune == item.IdActiune);
+
+             
 
                         RutinaActiune ra = new RutinaActiune();
                         ra.IdActiune = item.IdActiune;
@@ -404,10 +406,13 @@ namespace PrototipConfidenceBuilder.Models
                         ra.Stare = st;
                         ra.Rutina = rut;
                         ra.Actiune = item.Actiune;
-                if (rac != null)
-                    ra.ActiuniCumulate = rac.ActiuniCumulate;
-                else
-                    ra.ActiuniCumulate = 0;
+                        ra.ActiuniCumulate = 0;
+                if (upc != null)
+                {
+                    var rac = upc.Rutina.RutinaActiune.FirstOrDefault(x => x.IdActiune == item.IdActiune);
+                    if (rac != null)
+                        ra.ActiuniCumulate = rac.ActiuniCumulate;
+                 }
                         context.RutineActiuni.Add(ra);
                         context.SaveChanges();
                         MemoryDB.AddZi(new Zi(ra));
